@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TABLE shipment (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  order_id INT NOT NULL,
+  order_id INT NOT NULL UNIQUE,
   name VARCHAR(100) NOT NULL,
   street VARCHAR(200) NOT NULL,
   address VARCHAR(200) NOT NULL,

@@ -4,10 +4,10 @@ CREATE TABLE users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(200) UNIQUE NOT NULL,
   password VARCHAR(300) NOT NULL,
-  phone_number VARCHAR(200) UNIQUE NOT NULL,
+  phone_number VARCHAR(200) NOT NULL,
   birthday DATE NOT NULL,
-  agreed_to_terms_of_service BOOLEAN DEFAULT FALSE,
-  agreed_to_privacy_policy BOOLEAN DEFAULT FALSE,
+  agreed_to_terms_of_service BOOLEAN NOT NULL DEFAULT FALSE,
+  agreed_to_privacy_policy BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
