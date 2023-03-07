@@ -1,0 +1,19 @@
+-- migrate:up
+CREATE TABLE products (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  category VARCHAR(100) NOT NULL,
+  name VARCHAR(200) UNIQUE NOT NULL,
+  price DECIMAL(10, 3) NOT NULL,
+  gender VARCHAR(20) NOT NULL,
+  description TEXT NOT NULL,
+  quantity INT NOT NULL,
+  image VARCHAR(2000) NOT NULL,
+  is_new BOOLEAN DEFAULT FALSE,
+  discount_rate INT DEFAULT 0,
+  release_date DATE NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- migrate:down
+DROP TABLE products;
