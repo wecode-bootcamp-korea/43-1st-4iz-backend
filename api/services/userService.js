@@ -8,14 +8,16 @@ const signIn = async (email, password) => {
   await validateEmail(email);
   await validatePassword(password);
 
-  const user = await userDao.getUserByEmail(email);
+  const result = await userDao.doesUserExistByEmail(email);
 
-  if (!user) {
+  if (!result) {
     const error = new Error("NO_SUCH_USER");
     error.statusCode = 400;
 
     throw error;
   }
+
+  const user = await userDao.getUserByEmail(email);
 
   const match = await bcrypt.compare(password, user.password);
 
