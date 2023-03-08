@@ -30,7 +30,7 @@ const doesUserExistByEmail = async (email) => {
     [email]
   );
 
-  return parseInt(result.value) === 1 ? true : false;
+  return !!parseInt(result.value);
 };
 
 module.exports = {
