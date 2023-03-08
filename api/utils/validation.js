@@ -20,7 +20,19 @@ const validatePassword = async (password) => {
   }
 };
 
+const validatePhoneNumber = async (phoneNumber) => {
+  const phoneNumberRegex = /^\(?([0-9]{3})\)?[-.●]?([0-9]{4})[-.●]?([0-9]{4})$/;
+
+  if (!phoneNumberRegex.test(phoneNumber)) {
+    const error = new Error("INVALID_PHONE_NUMBER");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
 module.exports = {
   validateEmail,
   validatePassword,
+  validatePhoneNumber,
 };

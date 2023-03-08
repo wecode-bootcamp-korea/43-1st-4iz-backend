@@ -2,7 +2,28 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const { userDao } = require("../models");
-const { validateEmail, validatePassword } = require("../utils/validation");
+const {
+  validateEmail,
+  validatePassword,
+  validatePhoneNumber,
+} = require("../utils/validation");
+
+const hashPassword = async (plaintextPassword) => {
+  const saltRounds = 10;
+  const salt = await bcrypt.genSalt(saltRounds);
+
+  return bcrypt.hash(plaintextPassword, salt);
+};
+
+const signUp = async (name, email, password, phoneNumber, birthday) => {
+  await validateEmail(email);
+  await validatePassword(password);
+  await validatePhoneNumber(phoneNumber);
+
+  const hashedPassword = await hashPassword(password);
+
+  return userDao.createUser(name, email, hashedPassword, phoneNumber, birthday);
+};
 
 const signIn = async (email, password) => {
   await validateEmail(email);
@@ -32,5 +53,6 @@ const signIn = async (email, password) => {
 };
 
 module.exports = {
+  signUp,
   signIn,
 };
