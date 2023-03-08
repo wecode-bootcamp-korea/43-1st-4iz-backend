@@ -2,26 +2,44 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const { userDao } = require("../models");
+const {
+  validateEmail,
+  validatePassword,
+  validatePhoneNumber,
+} = require("../utils/validation");
+
+const hashPassword = async (plaintextPassword) => {
+  const saltRounds = 10;
+  const salt = await bcrypt.genSalt(saltRounds);
+
+  return bcrypt.hash(plaintextPassword, salt);
+};
+
+const signUp = async (name, email, password, phoneNumber, birthday) => {
+  await validateEmail(email);
+  await validatePassword(password);
+  await validatePhoneNumber(phoneNumber);
+
+  const hashedPassword = await hashPassword(password);
+
+  return userDao.createUser(name, email, hashedPassword, phoneNumber, birthday);
+};
 
 const signIn = async (email, password) => {
-  const emailRegex = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*/;
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,15})/;
+  await validateEmail(email);
+  await validatePassword(password);
 
-  if (!emailRegex.test(email)) {
-    const error = new Error("INVALID_EMAIL");
-    error.statusCode = 400;
+  const result = await userDao.doesUserExistByEmail(email);
 
-    throw error;
-  }
-
-  if (!passwordRegex.test(password)) {
-    const error = new Error("INVALID_PASSWORD");
+  if (!result) {
+    const error = new Error("NO_SUCH_USER");
     error.statusCode = 400;
 
     throw error;
   }
 
   const user = await userDao.getUserByEmail(email);
+
   const match = await bcrypt.compare(password, user.password);
 
   if (!match) {
@@ -31,11 +49,10 @@ const signIn = async (email, password) => {
     throw error;
   }
 
-  const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY);
-
-  return accessToken;
+  return jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY);
 };
 
 module.exports = {
+  signUp,
   signIn,
 };

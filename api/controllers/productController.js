@@ -8,7 +8,7 @@ const createProduct = catchAsync(async (req, res) => {
     gender,
     description,
     image,
-    is_new,
+    isNew,
     discountRate,
     releaseDate,
     color,
@@ -24,7 +24,7 @@ const createProduct = catchAsync(async (req, res) => {
     !gender ||
     !description ||
     !image ||
-    !release_date ||
+    !releaseDate ||
     !color ||
     !size ||
     !quantity ||
@@ -37,9 +37,11 @@ const createProduct = catchAsync(async (req, res) => {
     throw error;
   }
 
-  // Convert into number
+  // 숫자로 변환
   const priceInNum = +price;
+  const isNewInNum = +isNew;
   const discountRateInNum = +discountRate;
+  const quantityInNum = +quantity;
 
   const insertId = await productService.createProduct(
     name,
@@ -47,12 +49,12 @@ const createProduct = catchAsync(async (req, res) => {
     gender,
     description,
     image,
-    is_new,
+    isNewInNum,
     discountRateInNum,
     releaseDate,
     color,
     size,
-    quantity,
+    quantityInNum,
     category,
     subcategory
   );

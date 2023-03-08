@@ -17,6 +17,7 @@ const createProduct = async (
   subcategory
 ) => {
   await queryRunner.connect();
+  await queryRunner.startTransaction();
 
   try {
     // Products
@@ -29,8 +30,8 @@ const createProduct = async (
         description, 
         image, 
         is_new, 
-        discountRate, 
-        releaseDate,
+        discount_rate, 
+        release_date,
         category
        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -46,12 +47,14 @@ const createProduct = async (
       ]
     );
 
-    const productId = await queryRunner.query(
+    let [productId] = await queryRunner.query(
       `SELECT id 
        FROM products 
        WHERE name = ?`,
       [name]
     );
+
+    productId = parseInt(productId.id);
 
     // Product-Options
     await queryRunner.query(
@@ -59,8 +62,8 @@ const createProduct = async (
       INSERT
       INTO product_options (
         product_id,
-        color,
-        size,
+        color_name,
+        size_name,
         quantity
       ) VALUES (?, ?, ?, ?)`,
       [productId, color, size, quantity]
@@ -76,12 +79,14 @@ const createProduct = async (
       [subcategory]
     );
 
-    const subcategoryId = await queryRunner.query(
+    let [subcategoryId] = await queryRunner.query(
       `SELECT id
       FROM subcategories
       WHERE name = ?`,
       [subcategory]
     );
+
+    subcategoryId = parseInt(subcategoryId.id);
 
     // Product-Subcategories
     await queryRunner.query(
@@ -97,6 +102,7 @@ const createProduct = async (
 
     await queryRunner.commitTransaction();
   } catch (error) {
+    console.error("Rollback triggered", error);
     await queryRunner.rollbackTransaction();
   } finally {
     await queryRunner.release();
