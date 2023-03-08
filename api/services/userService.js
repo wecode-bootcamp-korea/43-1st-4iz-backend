@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt')
 
+const { emailValidationCheck, passwordValidationCheck, phoneNumberValidationCheck } = require('../utils/validation-check.js');
+
 const { userDao } = require('../models')
+
 
 const hashPassword = async (plaintextPassword) => {
     const saltRounds = 10;
@@ -10,30 +13,10 @@ const hashPassword = async (plaintextPassword) => {
 }
 
 const signUp = async (name, email, password, phoneNumber, birthday) => {
-    const emailRegex = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*/
-    const passwordRegex =/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,15})/
-    const phoneNumberRegex =/^\(?([0-9]{3})\)?[-.●]?([0-9]{4})[-.●]?([0-9]{4})$/
-
-    if (!emailRegex.test(email)) {
-        const error = new Error('INVALID_EMAIL')
-        error.statusCode = 400
-
-        throw error
-    }
-
-    if (!passwordRegex.test(password)) {
-        const error = new Error('INVALID_PASSWORD')
-        error.statusCode = 400
-
-        throw error
-    }
-
-    if (!phoneNumberRegex.test(phoneNumber)) {
-        const error = new Error('INVALID_PHONE_NUMBER')
-        error.statusCode = 400
-
-        throw error
-    }
+    
+    await emailValidationCheck(email);
+    await passwordValidationCheck(password);
+    await phoneNumberValidationCheck(phoneNumber);
 
     const hashedPassword = await hashPassword(password)
 
