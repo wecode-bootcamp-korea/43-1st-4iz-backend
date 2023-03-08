@@ -13,7 +13,7 @@ const signIn = catchAsync(async (req, res) => {
 
   const accessToken = await userService.signIn(email, password);
 
-  return res.status(200).json({ accessToken: accessToken });
+  return res.status(200).json({ accessToken });
 });
 
 module.exports = {
