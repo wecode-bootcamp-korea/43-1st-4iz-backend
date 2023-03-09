@@ -43,6 +43,11 @@ const createProduct = async (
   );
 };
 
+const productInfo = async (productId) => {
+    return productDao.showProduct(productId);
+}
+
 module.exports = {
   createProduct,
+  productInfo
 };
