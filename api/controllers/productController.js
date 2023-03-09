@@ -43,7 +43,7 @@ const createProduct = catchAsync(async (req, res) => {
   const discountRateInNum = +discountRate;
   const quantityInNum = +quantity;
 
-  const insertId = await productService.createProduct(
+  await productService.createProduct(
     name,
     priceInNum,
     gender,
@@ -59,7 +59,7 @@ const createProduct = catchAsync(async (req, res) => {
     subcategory
   );
 
-  return res.status(201).json({ data: insertId });
+  return res.status(201).json({ message: "successfully created" });
 });
 
 module.exports = {

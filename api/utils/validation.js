@@ -31,8 +31,58 @@ const validatePhoneNumber = async (phoneNumber) => {
   }
 };
 
+const validatePrice = async (price) => {
+  if (price < 0) {
+    const error = new Error("INVALID_PRICE");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
+const validateGender = async (gender) => {
+  if (gender !== "M" && gender !== "W" && gender !== "U") {
+    const error = new Error("INVALID_GENDER");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
+const validateIsNew = async (isNew) => {
+  if (isNew !== 0 && isNew !== 1) {
+    const error = new Error("INVALID_NEW");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
+const validateDiscountRate = async (discountRate) => {
+  if (discountRate < 0 || discountRate > 100) {
+    const error = new Error("INVALID_DISCOUNT_RATE");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
+const validateQuantity = async (quantity) => {
+  if (quantity <= 0) {
+    const error = new Error("INVALID_QUANTITY");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
 module.exports = {
   validateEmail,
   validatePassword,
   validatePhoneNumber,
+  validatePrice,
+  validateGender,
+  validateIsNew,
+  validateDiscountRate,
+  validateQuantity,
 };

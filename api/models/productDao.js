@@ -7,7 +7,7 @@ const createProduct = async (
   gender,
   description,
   image,
-  is_new,
+  isNew,
   discountRate,
   releaseDate,
   color,
@@ -20,7 +20,7 @@ const createProduct = async (
   await queryRunner.startTransaction();
 
   try {
-    // Products
+    // 제품 추가
     await queryRunner.query(
       `INSERT 
        INTO products (
@@ -40,13 +40,14 @@ const createProduct = async (
         gender,
         description,
         image,
-        is_new,
+        isNew,
         discountRate,
         releaseDate,
         category,
       ]
     );
 
+    // 추가된 제품 아이디
     let [productId] = await queryRunner.query(
       `SELECT id 
        FROM products 
@@ -56,7 +57,7 @@ const createProduct = async (
 
     productId = parseInt(productId.id);
 
-    // Product-Options
+    // 제품-옵션 추가
     await queryRunner.query(
       `
       INSERT
@@ -69,7 +70,7 @@ const createProduct = async (
       [productId, color, size, quantity]
     );
 
-    // Subcategories
+    // 하위 카테고리 추가
     await queryRunner.query(
       `
         INSERT 
@@ -88,7 +89,7 @@ const createProduct = async (
 
     subcategoryId = parseInt(subcategoryId.id);
 
-    // Product-Subcategories
+    // 제품-하위 카테고리 추가
     await queryRunner.query(
       `
       INSERT
@@ -102,7 +103,10 @@ const createProduct = async (
 
     await queryRunner.commitTransaction();
   } catch (error) {
-    console.error("Rollback triggered", error);
+    console.error(
+      "Error occurred during transaction. Rollback triggered.",
+      error
+    );
     await queryRunner.rollbackTransaction();
   } finally {
     await queryRunner.release();

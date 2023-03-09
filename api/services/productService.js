@@ -1,4 +1,11 @@
 const { productDao } = require("../models");
+const {
+  validatePrice,
+  validateIsNew,
+  validateDiscountRate,
+  validateQuantity,
+  validateGender,
+} = require("../utils/validation");
 
 const createProduct = async (
   name,
@@ -15,33 +22,11 @@ const createProduct = async (
   category,
   subcategory
 ) => {
-  if (price < 0) {
-    const error = new Error("INVALID_PRICE");
-    error.statusCode = 400;
-
-    throw error;
-  }
-
-  if (isNew !== 0 && isNew !== 1) {
-    const error = new Error("INVALID_NEW");
-    error.statusCode = 400;
-
-    throw error;
-  }
-
-  if (discountRate < 0 || discountRate > 100) {
-    const error = new Error("INVALID_DISCOUNT_RATE");
-    error.statusCode = 400;
-
-    throw error;
-  }
-
-  if (quantity <= 0) {
-    const error = new Error("INVALID_QUANTITY");
-    error.statusCode = 400;
-
-    throw error;
-  }
+  await validatePrice(price);
+  await validateGender(gender);
+  await validateIsNew(isNew);
+  await validateDiscountRate(discountRate);
+  await validateQuantity(quantity);
 
   return await productDao.createProduct(
     name,
