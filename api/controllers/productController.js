@@ -15,7 +15,6 @@ const createProduct = catchAsync(async (req, res) => {
     size,
     quantity,
     category,
-    subcategory,
   } = req.body;
 
   if (
@@ -24,12 +23,13 @@ const createProduct = catchAsync(async (req, res) => {
     !gender ||
     !description ||
     !image ||
+    !isNew ||
+    !discountRate ||
     !releaseDate ||
     !color ||
     !size ||
     !quantity ||
-    !category ||
-    !subcategory
+    !category
   ) {
     const error = new Error("KEY_ERROR");
     error.status = 400;
@@ -37,7 +37,6 @@ const createProduct = catchAsync(async (req, res) => {
     throw error;
   }
 
-  // 숫자로 변환
   const priceInNum = +price;
   const isNewInNum = +isNew;
   const discountRateInNum = +discountRate;
@@ -55,8 +54,7 @@ const createProduct = catchAsync(async (req, res) => {
     color,
     size,
     quantityInNum,
-    category,
-    subcategory
+    category
   );
 
   return res.status(201).json({ message: "successfully created" });

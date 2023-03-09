@@ -13,92 +13,83 @@ const createProduct = async (
   color,
   size,
   quantity,
-  category,
-  subcategory
+  category
 ) => {
   await queryRunner.connect();
   await queryRunner.startTransaction();
 
   try {
-    // 제품 추가
-    await queryRunner.query(
+    const newProduct = await queryRunner.query(
       `INSERT 
-       INTO products (
+      INTO products (
         name, 
         price, 
         gender, 
         description, 
-        image, 
         is_new, 
         discount_rate, 
-        release_date,
-        category
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        name,
-        price,
-        gender,
-        description,
-        image,
-        isNew,
-        discountRate,
-        releaseDate,
-        category,
-      ]
+        release_date
+       ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [name, price, gender, description, isNew, discountRate, releaseDate]
     );
 
-    // 추가된 제품 아이디
-    let [productId] = await queryRunner.query(
-      `SELECT id 
-       FROM products 
-       WHERE name = ?`,
-      [name]
-    );
-
-    productId = parseInt(productId.id);
-
-    // 제품-옵션 추가
     await queryRunner.query(
       `
-      INSERT
-      INTO product_options (
+      INSERT 
+      INTO images (
         product_id,
-        color_name,
-        size_name,
+        url
+      ) VALUES (? ,?)
+      `,
+      [newProduct.insertId, image]
+    );
+
+    await queryRunner.query(
+      `
+      INSERT 
+      INTO options (
+        product_id,
+        color,
+        size,
         quantity
       ) VALUES (?, ?, ?, ?)`,
-      [productId, color, size, quantity]
+      [newProduct.insertId, color, size, quantity]
     );
 
-    // 하위 카테고리 추가
-    await queryRunner.query(
+    let [result] = await queryRunner.query(
       `
+      SELECT EXISTS( 
+        SELECT id 
+        FROM categories 
+        WHERE name = ?
+      ) AS value
+      `,
+      [category]
+    );
+
+    result = !!parseInt(result.value);
+
+    let newCategory;
+    if (!result) {
+      newCategory = await queryRunner.query(
+        `
         INSERT 
-        INTO subcategories (
+        INTO categories (
           name
         ) VALUES (?)`,
-      [subcategory]
-    );
+        [category]
+      );
+    }
 
-    let [subcategoryId] = await queryRunner.query(
-      `SELECT id
-      FROM subcategories
-      WHERE name = ?`,
-      [subcategory]
-    );
-
-    subcategoryId = parseInt(subcategoryId.id);
-
-    // 제품-하위 카테고리 추가
     await queryRunner.query(
       `
       INSERT
-      INTO product_subcategories (
+      INTO product_categories (
         product_id,
-        subcategory_id
+        category_id
       ) VALUES (?, ?)
     `,
-      [productId, subcategoryId]
+      [newProduct.insertId, newCategory.insertId]
     );
 
     await queryRunner.commitTransaction();

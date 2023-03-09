@@ -19,8 +19,7 @@ const createProduct = async (
   color,
   size,
   quantity,
-  category,
-  subcategory
+  category
 ) => {
   await validatePrice(price);
   await validateGender(gender);
@@ -40,8 +39,7 @@ const createProduct = async (
     color,
     size,
     quantity,
-    category,
-    subcategory
+    category
   );
 };
 
