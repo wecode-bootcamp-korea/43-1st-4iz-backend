@@ -76,6 +76,15 @@ const validateQuantity = async (quantity) => {
   }
 };
 
+const validateOrder = async (order) => {
+  if (order !== "low" && order !== "high" && order !== "date") {
+    const error = new Error("INVALID_ORDER");
+    error.statusCode = 400;
+
+    throw error;
+  }
+};
+
 module.exports = {
   validateEmail,
   validatePassword,
@@ -85,4 +94,5 @@ module.exports = {
   validateIsNew,
   validateDiscountRate,
   validateQuantity,
+  validateOrder,
 };

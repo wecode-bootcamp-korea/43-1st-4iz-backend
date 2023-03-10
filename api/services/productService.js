@@ -5,6 +5,7 @@ const {
   validateDiscountRate,
   validateQuantity,
   validateGender,
+  validateOrder,
 } = require("../utils/validation");
 
 const createProduct = async (
@@ -43,6 +44,13 @@ const createProduct = async (
   );
 };
 
+const sortProduct = async (order) => {
+  await validateOrder(order);
+
+  return await productDao.sortProduct(order);
+};
+
 module.exports = {
   createProduct,
+  sortProduct,
 };
