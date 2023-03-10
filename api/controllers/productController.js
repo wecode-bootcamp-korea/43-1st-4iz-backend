@@ -60,6 +60,36 @@ const createProduct = catchAsync(async (req, res) => {
   return res.status(201).json({ message: "successfully created" });
 });
 
+const searchProduct = catchAsync(async (req, res) => {
+  let {
+    limit = 10,
+    offset = 0,
+    searchMethod,
+    sortMethod = "price",
+    ...filterOptions
+  } = req.query;
+
+  console.log(limit);
+  console.log(offset);
+  console.log(searchMethod);
+  console.log(sortMethod);
+  console.log(filterOptions);
+
+  searchMethod = searchMethod.replaceAll('"', "");
+  sortMethod = sortMethod.replaceAll('"', "");
+
+  const result = await productService.searchProduct(
+    limit,
+    offset,
+    searchMethod,
+    sortMethod,
+    filterOptions
+  );
+
+  res.status(200).json(result);
+});
+
 module.exports = {
   createProduct,
+  searchProduct,
 };

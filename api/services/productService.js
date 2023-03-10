@@ -43,6 +43,37 @@ const createProduct = async (
   );
 };
 
+const searchProduct = async (
+  limit,
+  offset,
+  searchMethod,
+  sortMethod,
+  filterOptions
+) => {
+  const sorting = async (sortMethod) => {
+    switch (sortMethod) {
+      case "date":
+        return `ORDER BY p.release_date DESC`;
+      case "high":
+        return `ORDER BY p.price DESC`;
+      case "low":
+        return `ORDER BY p.price ASC`;
+      default:
+        return `ORDER BY p.release_date DESC`;
+    }
+  };
+
+  const sortingQuery = await sorting(sortMethod);
+  return await productDao.searchProduct(
+    limit,
+    offset,
+    searchMethod,
+    sortingQuery,
+    filterOptions
+  );
+};
+
 module.exports = {
   createProduct,
+  searchProduct,
 };

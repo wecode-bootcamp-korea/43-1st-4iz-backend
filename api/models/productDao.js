@@ -1,5 +1,6 @@
 const dataSource = require("./dataSource");
 const queryRunner = dataSource.createQueryRunner();
+const { ProductQueryBuilder } = require("./productQueryBuilder");
 
 const createProduct = async (
   name,
@@ -104,6 +105,77 @@ const createProduct = async (
   }
 };
 
+const searchProduct = async (
+  limit,
+  offset,
+  searchMethod,
+  sortingQuery,
+  filterOptions
+) => {
+  const filterQuery = new ProductQueryBuilder(
+    limit,
+    offset,
+    searchMethod,
+    sortingQuery,
+    filterOptions
+  ).build();
+
+  console.log(filterQuery);
+
+  const result = await dataSource.query(`
+    SELECT 
+      p.name AS name,
+      p.price AS price,
+      p.discount_rate AS discount_rate,
+      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price
+    FROM products p
+    ${filterQuery}
+  `);
+
+  return result;
+
+  return await dataSource.query(
+    `
+    SELECT
+      p.name AS name,
+      p.price AS price,
+      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
+    CASE
+      WHEN p.gender = "M" THEN "남성"
+      WHEN p.gender = "W" THEN "여성"
+      ELSE ""
+    END AS gender,
+      IF(p.is_new = 1, "신상품", "") AS new,
+      COUNT(DISTINCT(o.color)) AS color_count,
+      p.discount_rate AS discount_rate,
+      DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
+      ij.url AS images,
+      pcj.category AS categories
+    FROM products AS p
+    JOIN options AS o ON o.product_id = p.id
+    JOIN (
+      SELECT 
+        product_id,
+        JSON_ARRAYAGG(i.url) AS url
+      FROM images AS i
+      GROUP BY product_id
+    ) ij ON ij.product_id = p.id
+    JOIN (
+      SELECT  
+        product_id,
+        JSON_ARRAYAGG(c.name) AS category
+      FROM product_categories AS pc
+      JOIN categories AS c ON c.id = pc.category_id
+      GROUP BY product_id
+    ) pcj ON pcj.product_id = p.id
+      WHERE p.name LIKE ? OR p.description LIKE ? OR o.color LIKE ? OR o.size LIKE ? c.name LIKE ?
+      GROUP BY p.id
+  `,
+    [keyword, keyword, keyword, keyword, keyword, keyword]
+  );
+};
+
 module.exports = {
   createProduct,
+  searchProduct,
 };
