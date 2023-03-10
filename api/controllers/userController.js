@@ -13,7 +13,7 @@ const checkDuplicateUser = catchAsync(async (req, res) => {
 
   const result = await userService.checkDuplicateUser(email);
 
-  return res.status(200).json({ message: "USER_DOESN'T_EXIST" });
+  return res.status(200).json({ message: "NEW_USER" });
 });
 
 const signUp = catchAsync(async (req, res) => {
