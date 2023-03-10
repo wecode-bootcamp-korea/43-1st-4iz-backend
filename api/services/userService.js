@@ -15,6 +15,21 @@ const hashPassword = async (plaintextPassword) => {
   return bcrypt.hash(plaintextPassword, salt);
 };
 
+const checkDuplicateUser = async (email) => {
+  await validateEmail(email);
+
+  const result = await userDao.doesUserExistByEmail(email);
+
+  if (result) {
+    const error = new Error("USER_ALREADY_EXISTS");
+    error.statusCode = 400;
+
+    throw error;
+  }
+
+  return result;
+};
+
 const signUp = async (name, email, password, phoneNumber, birthday) => {
   await validateEmail(email);
   await validatePassword(password);
@@ -53,6 +68,7 @@ const signIn = async (email, password) => {
 };
 
 module.exports = {
+  checkDuplicateUser,
   signUp,
   signIn,
 };
