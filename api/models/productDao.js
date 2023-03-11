@@ -117,6 +117,7 @@ const listProduct = async (limit, offset, search, sortQuery, filters) => {
   return await dataSource.query(
     `
     SELECT
+      p.id AS id,
       p.name AS name,
       p.price AS price,
       IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
