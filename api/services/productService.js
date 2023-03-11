@@ -43,15 +43,18 @@ const createProduct = async (
   );
 };
 
-const searchProduct = async (
-  limit,
-  offset,
-  searchMethod,
-  sortMethod,
-  filterOptions
-) => {
-  const sorting = async (sortMethod) => {
-    switch (sortMethod) {
+const listProduct = async (limit, offset, search, sort, filters) => {
+  if (filters.hasOwnProperty("category")) {
+    let value = filters["category"];
+    value = value.replaceAll('"', "");
+    filters["category"] = value;
+  }
+
+  search = search.replaceAll('"', "");
+  sort = sort.replaceAll('"', "");
+
+  const sorting = async (sort) => {
+    switch (sort) {
       case "date":
         return `ORDER BY p.release_date DESC`;
       case "high":
@@ -63,17 +66,17 @@ const searchProduct = async (
     }
   };
 
-  const sortingQuery = await sorting(sortMethod);
-  return await productDao.searchProduct(
+  const sortQuery = await sorting(sort);
+  return await productDao.listProduct(
     limit,
     offset,
-    searchMethod,
-    sortingQuery,
-    filterOptions
+    search,
+    sortQuery,
+    filters
   );
 };
 
 module.exports = {
   createProduct,
-  searchProduct,
+  listProduct,
 };

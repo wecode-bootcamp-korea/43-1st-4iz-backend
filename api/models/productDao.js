@@ -105,34 +105,14 @@ const createProduct = async (
   }
 };
 
-const searchProduct = async (
-  limit,
-  offset,
-  searchMethod,
-  sortingQuery,
-  filterOptions
-) => {
+const listProduct = async (limit, offset, search, sortQuery, filters) => {
   const filterQuery = new ProductQueryBuilder(
     limit,
     offset,
-    searchMethod,
-    sortingQuery,
-    filterOptions
+    search,
+    sortQuery,
+    filters
   ).build();
-
-  console.log(filterQuery);
-
-  const result = await dataSource.query(`
-    SELECT 
-      p.name AS name,
-      p.price AS price,
-      p.discount_rate AS discount_rate,
-      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price
-    FROM products p
-    ${filterQuery}
-  `);
-
-  return result;
 
   return await dataSource.query(
     `
@@ -168,14 +148,12 @@ const searchProduct = async (
       JOIN categories AS c ON c.id = pc.category_id
       GROUP BY product_id
     ) pcj ON pcj.product_id = p.id
-      WHERE p.name LIKE ? OR p.description LIKE ? OR o.color LIKE ? OR o.size LIKE ? c.name LIKE ?
-      GROUP BY p.id
-  `,
-    [keyword, keyword, keyword, keyword, keyword, keyword]
+    ${filterQuery}
+  `
   );
 };
 
 module.exports = {
   createProduct,
-  searchProduct,
+  listProduct,
 };

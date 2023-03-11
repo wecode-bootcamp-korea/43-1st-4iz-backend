@@ -60,30 +60,21 @@ const createProduct = catchAsync(async (req, res) => {
   return res.status(201).json({ message: "successfully created" });
 });
 
-const searchProduct = catchAsync(async (req, res) => {
+const listProduct = catchAsync(async (req, res) => {
   let {
     limit = 10,
     offset = 0,
-    searchMethod,
-    sortMethod = "price",
-    ...filterOptions
+    search = "",
+    sort = "date",
+    ...filters
   } = req.query;
 
-  console.log(limit);
-  console.log(offset);
-  console.log(searchMethod);
-  console.log(sortMethod);
-  console.log(filterOptions);
-
-  searchMethod = searchMethod.replaceAll('"', "");
-  sortMethod = sortMethod.replaceAll('"', "");
-
-  const result = await productService.searchProduct(
+  const result = await productService.listProduct(
     limit,
     offset,
-    searchMethod,
-    sortMethod,
-    filterOptions
+    search,
+    sort,
+    filters
   );
 
   res.status(200).json(result);
@@ -91,5 +82,5 @@ const searchProduct = catchAsync(async (req, res) => {
 
 module.exports = {
   createProduct,
-  searchProduct,
+  listProduct,
 };

@@ -1,21 +1,60 @@
 class ProductQueryBuilder {
-  constructor(limit, offset, searchMethod, sortingQuery, filterOptions) {
+  constructor(limit, offset, search, sortingQuery, filters) {
     this.limit = limit;
     this.offset = offset;
-    this.searchMethod = searchMethod;
+    this.search = search;
     this.sortingQuery = sortingQuery;
-    this.filterOptions = filterOptions;
+    this.filters = filters;
+    this.searchTypes = [
+      `p.name`,
+      `p.description`,
+      `o.color`,
+      `category`,
+      `p.gender`,
+      `o.size`,
+    ];
   }
-  // product name, product description, option color, category name, product gender, option size,
-  searchKeywordFilterBuilder(keyword) {
-    return `WHERE p.name LIKE "%${keyword}%" OR p.description LIKE "%${keyword}%"`;
+
+  searchFilterBuilder(keyword) {
+    const searchTypesLength = this.searchTypes.length;
+    let clause = [];
+
+    for (
+      let searchTypeIndex = 0;
+      searchTypeIndex < searchTypesLength;
+      searchTypeIndex++
+    ) {
+      clause.push(this.searchTypes[searchTypeIndex] + ` LIKE "%${keyword}%"`);
+    }
+
+    if (clause.length !== 0) {
+      clause = `${clause.join(" OR ")}`;
+    }
+
+    clause = `WHERE ` + clause;
+
+    return keyword === "" ? "" : clause;
+  }
+
+  categoryFilterBuilder(category) {
+    return `category LIKE "%${category}%"`;
+  }
+
+  genderFilterBuilder(gender) {
+    return `p.gender IN (${gender})`;
+  }
+
+  sizeFilterBuilder(size) {
+    return `o.size IN (${size})`;
+  }
+
+  colorFilterBuilder(color) {
+    return `o.color IN (${color})`;
   }
 
   orderByBuilder() {
     return this.sortingQuery;
   }
-
-  whenBuilder() {}
 
   limitBuilder() {
     return `LIMIT ${this.limit}`;
@@ -25,27 +64,52 @@ class ProductQueryBuilder {
     return `OFFSET ${this.offset}`;
   }
 
+  groupByBuilder() {
+    return `GROUP BY p.id`;
+  }
+
   buildWhereClause() {
     const builderSet = {
-      //orderBy: this.orderByBuilder,
-      searchFilter: this.searchTypeFilterBuilder,
+      categoryFilter: this.categoryFilterBuilder,
+      genderFilter: this.genderFilterBuilder,
+      sizeFilter: this.sizeFilterBuilder,
+      colorFilter: this.colorFilterBuilder,
     };
 
-    let whereClauses = this.searchKeywordFilterBuilder(this.searchMethod);
-    console.log(whereClauses);
-    /*
-    whereClauses += Object.entries(this.filterOptions).map(([key, value]) =>
-      builderSet[key](value)
-    );
+    let searchClause = this.searchFilterBuilder(this.search);
 
-    if (whereClauses.length != 0) {
-      return `WHERE ${whereClauses.join(" OR ")}`;
-    }*/
+    let filterClause = Object.entries(this.filters).map(([key, value]) => {
+      switch (key) {
+        case "category":
+          return builderSet["categoryFilter"](value);
+        case "gender":
+          return builderSet["genderFilter"](value);
+        case "color":
+          return builderSet["colorFilter"](value);
+        case "size":
+          return builderSet["sizeFilter"](value);
+      }
+    });
+
+    if (filterClause.length !== 0) {
+      filterClause = `${filterClause.join(" OR ")}`;
+
+      if (searchClause.length !== 0) {
+        filterClause = "OR " + filterClause;
+      } else {
+        filterClause = "WHERE " + filterClause;
+      }
+    }
+
+    const completeClause = searchClause + filterClause;
+
+    return completeClause;
   }
 
   build() {
     const filterQuery = [
       this.buildWhereClause(),
+      this.groupByBuilder(),
       this.orderByBuilder(),
       this.limitBuilder(),
       this.offsetBuilder(),
