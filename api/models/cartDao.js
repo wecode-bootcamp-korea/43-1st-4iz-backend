@@ -7,6 +7,7 @@ const getCarts = async (userId) => {
       p.id AS id,
       p.name AS name,
       c.price_sum AS price_sum,
+      IF(p.discount_rate > 0, c.price_sum * (1 - p.discount_rate / 100) , "") AS discounted_price_sum,
       c.quantity AS quantity,
       pcj.category AS categories,
       o.color AS color,
