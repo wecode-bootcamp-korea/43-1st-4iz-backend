@@ -41,7 +41,7 @@ const getUserByEmail = async (email) => {
   return user;
 };
 
-const doesUserExistByEmail = async (email) => {
+const checkIfUserExistsByEmail = async (email) => {
   const [result] = await dataSource.query(
     `
     SELECT EXISTS(
@@ -59,5 +59,5 @@ const doesUserExistByEmail = async (email) => {
 module.exports = {
   createUser,
   getUserByEmail,
-  doesUserExistByEmail,
+  checkIfUserExistsByEmail,
 };
