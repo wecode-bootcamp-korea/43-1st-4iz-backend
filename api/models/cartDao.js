@@ -1,6 +1,6 @@
 const dataSource = require("./dataSource");
 
-const getCarts = async (userId) => {
+const listCart = async (userId) => {
   return await dataSource.query(
     `
     SELECT 
@@ -9,6 +9,7 @@ const getCarts = async (userId) => {
       c.price_sum AS price_sum,
       IF(p.discount_rate > 0, c.price_sum * (1 - p.discount_rate / 100) , "") AS discounted_price_sum,
       c.quantity AS quantity,
+      ij.image AS images,
       pcj.category AS categories,
       o.color AS color,
       o.size AS size,
@@ -18,6 +19,13 @@ const getCarts = async (userId) => {
     JOIN product_carts AS pc on pc.cart_id = c.id
     JOIN products AS p ON p.id = pc.product_id
     JOIN options AS o ON o.id = c.option_id
+    JOIN (
+      SELECT
+        product_id,
+        JSON_ARRAYAGG(i.url) AS image
+      FROM images AS i
+      GROUP BY product_id
+    ) ij ON ij.product_id = p.id
     JOIN (
       SELECT  
         product_id,
@@ -45,5 +53,5 @@ const getCarts = async (userId) => {
 };
 
 module.exports = {
-  getCarts,
+  listCart,
 };
