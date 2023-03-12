@@ -37,7 +37,13 @@ const signUp = async (name, email, password, phoneNumber, birthday) => {
 
   const hashedPassword = await hashPassword(password);
 
-  return userDao.createUser(name, email, hashedPassword, phoneNumber, birthday);
+  return await userDao.createUser(
+    name,
+    email,
+    hashedPassword,
+    phoneNumber,
+    birthday
+  );
 };
 
 const signIn = async (email, password) => {
