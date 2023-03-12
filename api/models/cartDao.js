@@ -17,8 +17,6 @@ const deleteCart = async (userId, cartId, productId) => {
       )
     ).affectedRows;
 
-    console.log(`product_carts: ${deletedRows}`);
-
     if (deletedRows !== 0 && deletedRows !== 1) {
       throw new Error("WRONG_NUMBER_OF_RECORDS_DELETED");
     }
@@ -33,8 +31,6 @@ const deleteCart = async (userId, cartId, productId) => {
         [userId, cartId]
       )
     ).affectedRows;
-
-    console.log(`carts: ${deletedRows}`);
 
     if (deletedRows !== 0 && deletedRows !== 1) {
       throw new Error("WRONG_NUMBER_OF_RECORDS_DELETED");
