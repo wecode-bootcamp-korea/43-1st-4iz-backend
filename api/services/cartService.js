@@ -16,7 +16,12 @@ const updateCart = async (userId, cartId, productId, quantity) => {
   return await cartDao.updateCart(userId, cartId, productId, quantity);
 };
 
+const listCart = async (userId) => {
+  return await cartDao.listCart(userId);
+};
+
 module.exports = {
   createCart,
   updateCart,
+  listCart,
 };

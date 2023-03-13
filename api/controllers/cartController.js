@@ -44,10 +44,20 @@ const updateCart = catchAsync(async (req, res) => {
     productId,
     quantity
   );
+
   return res.status(201).json({ data });
+});
+
+const listCart = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+
+  const data = await cartService.listCart(userId);
+
+  return res.status(200).json({ data });
 });
 
 module.exports = {
   createCart,
   updateCart,
+  listCart,
 };

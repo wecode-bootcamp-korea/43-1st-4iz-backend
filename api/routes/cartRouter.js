@@ -11,5 +11,6 @@ router.patch(
   loginRequired,
   cartController.updateCart
 );
+router.get("/", loginRequired, cartController.listCart);
 
 module.exports = router;
