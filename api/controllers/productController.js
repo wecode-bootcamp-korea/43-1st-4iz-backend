@@ -60,6 +60,22 @@ const createProduct = catchAsync(async (req, res) => {
   return res.status(201).json({ message: "successfully created" });
 });
 
+const getProduct = async (req, res) => {
+  const productId = +req.params.productId;
+
+  if (!productId) {
+    const error = new Error("KEY_ERROR");
+    error.status = 400;
+
+    throw error;
+  }
+
+  const result = await productService.getProduct(productId);
+
+  return res.status(200).json({ data: result });
+};
+
 module.exports = {
   createProduct,
+  getProduct,
 };
