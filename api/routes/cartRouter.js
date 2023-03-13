@@ -11,5 +11,10 @@ router.patch(
   loginRequired,
   cartController.updateCart
 );
+router.delete(
+  "/:cartId/products/:productId",
+  loginRequired,
+  cartController.deleteCart
+);
 
 module.exports = router;
