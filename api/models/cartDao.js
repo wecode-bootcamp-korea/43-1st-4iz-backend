@@ -7,14 +7,7 @@ const createCart = async (userId, productId, color, size, quantity) => {
   await queryRunner.startTransaction();
 
   try {
-    const [product] = await queryRunner.query(
-      `
-      SELECT price
-      FROM products
-      WHERE id = ?
-    `,
-      [productId]
-    );
+    const [product] = await getProductById(productId);
 
     const [option] = await queryRunner.query(
       `
