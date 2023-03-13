@@ -43,11 +43,11 @@ const createProduct = async (
   );
 };
 
-const getProduct = async (productId) => {
-  return await productDao.getProduct(productId);
+const getProductDetailById = async (productId) => {
+  return await productDao.getProductDetailById(productId);
 };
 
 module.exports = {
   createProduct,
-  getProduct,
+  getProductDetailById,
 };

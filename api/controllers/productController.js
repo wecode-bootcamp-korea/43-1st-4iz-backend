@@ -60,7 +60,7 @@ const createProduct = catchAsync(async (req, res) => {
   return res.status(201).json({ message: "successfully created" });
 });
 
-const getProduct = async (req, res) => {
+const getProductDetailById = async (req, res) => {
   const productId = +req.params.productId;
 
   if (!productId) {
@@ -70,12 +70,12 @@ const getProduct = async (req, res) => {
     throw error;
   }
 
-  const result = await productService.getProduct(productId);
+  const result = await productService.getProductDetailById(productId);
 
   return res.status(200).json({ data: result });
 };
 
 module.exports = {
   createProduct,
-  getProduct,
+  getProductDetailById,
 };

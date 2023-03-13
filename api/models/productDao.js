@@ -104,7 +104,7 @@ const createProduct = async (
   }
 };
 
-const getProduct = async (productId) => {
+const getProductDetailById = async (productId) => {
   return dataSource.query(
     `
     SELECT
@@ -123,14 +123,17 @@ const getProduct = async (productId) => {
       DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
       ij.url AS images,
       pcj.category AS categories,
-      oj.color AS colors,
-      oj.size AS sizes
+      oj.options AS options
     FROM products AS p
     JOIN (
       SELECT
         product_id,
-        JSON_ARRAYAGG(o.color) AS color,
-        JSON_ARRAYAGG(o.size) AS size
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            "color", o.color,
+            "size", o.size
+          )
+        ) AS options
       FROM options AS o
       GROUP BY product_id
     ) oj ON oj.product_id = p.id
@@ -156,5 +159,5 @@ const getProduct = async (productId) => {
 
 module.exports = {
   createProduct,
-  getProduct,
+  getProductDetailById,
 };
