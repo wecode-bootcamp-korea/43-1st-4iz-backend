@@ -104,6 +104,18 @@ const createProduct = async (
   }
 };
 
+const getProductById = async (productId) => {
+  return await dataSource.query(
+    `
+    SELECT price
+    FROM products
+    WHERE id = ?
+  `,
+    [productId]
+  );
+};
+
 module.exports = {
   createProduct,
+  getProductById,
 };
