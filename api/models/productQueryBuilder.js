@@ -1,9 +1,9 @@
 class ProductQueryBuilder {
-  constructor(limit, offset, search, sortingQuery, filters) {
+  constructor(limit, offset, search, sort, filters) {
     this.limit = limit;
     this.offset = offset;
     this.search = search;
-    this.sortingQuery = sortingQuery;
+    this.sort = sort;
     this.filters = filters;
     this.searchTypes = [
       `p.name`,
@@ -13,6 +13,19 @@ class ProductQueryBuilder {
       `p.gender`,
       `o.size`,
     ];
+  }
+
+  sortFilterBuilder() {
+    switch (this.sort) {
+      case "date":
+        return `ORDER BY p.release_date DESC`;
+      case "high":
+        return `ORDER BY p.price DESC`;
+      case "low":
+        return `ORDER BY p.price ASC`;
+      default:
+        return `ORDER BY p.release_date DESC`;
+    }
   }
 
   searchFilterBuilder(keyword) {
@@ -53,7 +66,7 @@ class ProductQueryBuilder {
   }
 
   orderByBuilder() {
-    return this.sortingQuery;
+    return this.sortFilterBuilder();
   }
 
   limitBuilder() {

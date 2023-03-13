@@ -105,12 +105,12 @@ const createProduct = async (
   }
 };
 
-const listProduct = async (limit, offset, search, sortQuery, filters) => {
+const listProduct = async (limit, offset, search, sort, filters) => {
   const filterQuery = new ProductQueryBuilder(
     limit,
     offset,
     search,
-    sortQuery,
+    sort,
     filters
   ).build();
 

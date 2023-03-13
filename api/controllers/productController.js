@@ -1,5 +1,7 @@
 const { productService } = require("../services");
 const { catchAsync } = require("../utils/error");
+const LIMIT_DEFAULT = 10;
+const OFFSET_DEFAULT = 0;
 
 const createProduct = catchAsync(async (req, res) => {
   const {
@@ -62,8 +64,8 @@ const createProduct = catchAsync(async (req, res) => {
 
 const listProduct = catchAsync(async (req, res) => {
   let {
-    limit = 10,
-    offset = 0,
+    limit = LIMIT_DEFAULT,
+    offset = OFFSET_DEFAULT,
     search = "",
     sort = "date",
     ...filters

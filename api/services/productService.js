@@ -53,27 +53,7 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   search = search.replaceAll('"', "");
   sort = sort.replaceAll('"', "");
 
-  const sorting = async (sort) => {
-    switch (sort) {
-      case "date":
-        return `ORDER BY p.release_date DESC`;
-      case "high":
-        return `ORDER BY p.price DESC`;
-      case "low":
-        return `ORDER BY p.price ASC`;
-      default:
-        return `ORDER BY p.release_date DESC`;
-    }
-  };
-
-  const sortQuery = await sorting(sort);
-  return await productDao.listProduct(
-    limit,
-    offset,
-    search,
-    sortQuery,
-    filters
-  );
+  return await productDao.listProduct(limit, offset, search, sort, filters);
 };
 
 module.exports = {
