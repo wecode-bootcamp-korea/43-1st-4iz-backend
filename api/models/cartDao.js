@@ -1,4 +1,5 @@
 const dataSource = require("./dataSource");
+const { getProductById } = require("./productDao");
 const queryRunner = dataSource.createQueryRunner();
 
 const createCart = async (userId, productId, color, size, quantity) => {
@@ -61,7 +62,10 @@ const createCart = async (userId, productId, color, size, quantity) => {
 };
 
 const updateCart = async (userId, cartId, productId, quantity) => {
-  const [product] = await dataSource.query(
+  const [product] = await getProductById(productId);
+
+  /*
+  await dataSource.query(
     `
     SELECT price
     FROM products
@@ -69,7 +73,7 @@ const updateCart = async (userId, cartId, productId, quantity) => {
   `,
     [productId]
   );
-
+*/
   const updatedRows = (
     await dataSource.query(
       `
@@ -84,7 +88,7 @@ const updateCart = async (userId, cartId, productId, quantity) => {
   ).affectedRows;
 
   if (updatedRows !== 1) {
-    throw new Error("WRONG_NUMBER_OF_RECORDS_UPDATED");
+    throw new Error("INVALID_INPUT");
   }
 
   const [result] = await dataSource.query(
