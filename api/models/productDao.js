@@ -119,19 +119,27 @@ const getProduct = async (productId) => {
       ELSE ""
     END AS gender,
       IF(p.is_new = 1, "신상품", "") AS new,
-      COUNT(DISTINCT(o.color)) AS color_count,
       p.discount_rate AS discount_rate,
       DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
       ij.url AS images,
-      pcj.category AS categories
+      pcj.category AS categories,
+      oj.color AS colors,
+      oj.size AS sizes
     FROM products AS p
-    JOIN options AS o ON o.product_id = p.id
     JOIN (
-    SELECT 
-      product_id,
-      JSON_ARRAYAGG(i.url) AS url
-    FROM images AS i
-    GROUP BY product_id
+      SELECT
+        product_id,
+        JSON_ARRAYAGG(o.color) AS color,
+        JSON_ARRAYAGG(o.size) AS size
+      FROM options AS o
+      GROUP BY product_id
+    ) oj ON oj.product_id = p.id
+    JOIN (
+      SELECT 
+        product_id,
+        JSON_ARRAYAGG(i.url) AS url
+      FROM images AS i
+      GROUP BY product_id
     ) ij ON ij.product_id = p.id
     JOIN (
       SELECT  
