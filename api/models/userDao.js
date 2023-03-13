@@ -95,6 +95,6 @@ module.exports = {
   createUser,
   getUserByEmail,
   getUserById,
-  checkIfUserExistById,
   checkIfUserExistsByEmail,
+  checkIfUserExistById,
 };
