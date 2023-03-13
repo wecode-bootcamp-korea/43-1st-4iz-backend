@@ -1,5 +1,7 @@
 const { productService } = require("../services");
 const { catchAsync } = require("../utils/error");
+const LIMIT_DEFAULT = 10;
+const OFFSET_DEFAULT = 0;
 
 const createProduct = catchAsync(async (req, res) => {
   const {
@@ -60,7 +62,27 @@ const createProduct = catchAsync(async (req, res) => {
   return res.status(201).json({ message: "successfully created" });
 });
 
-const getProductDetailById = async (req, res) => {
+const listProduct = catchAsync(async (req, res) => {
+  const {
+    limit = LIMIT_DEFAULT,
+    offset = OFFSET_DEFAULT,
+    search = "",
+    sort = "date",
+    ...filters
+  } = req.query;
+
+  const result = await productService.listProduct(
+    limit,
+    offset,
+    search,
+    sort,
+    filters
+  );
+
+  return res.status(200).json({ data: result });
+});
+
+const getProductDetailById = catchAsync(async (req, res) => {
   const productId = +req.params.productId;
 
   if (!productId) {
@@ -73,9 +95,10 @@ const getProductDetailById = async (req, res) => {
   const result = await productService.getProductDetailById(productId);
 
   return res.status(200).json({ data: result });
-};
+});
 
 module.exports = {
   createProduct,
   getProductDetailById,
+  listProduct,
 };
