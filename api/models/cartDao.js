@@ -62,10 +62,10 @@ const createCart = async (userId, productId, color, size, quantity) => {
 
 const deleteCart = async (userId, cartId, productId) => {
   await queryRunner.connect();
-  await queryRunner.startTransaction();
 
   try {
-    let deletedRows = (
+    await queryRunner.startTransaction();
+    const deletedRowsFromProductCarts = (
       await queryRunner.query(
         `
         DELETE
@@ -76,12 +76,12 @@ const deleteCart = async (userId, cartId, productId) => {
       )
     ).affectedRows;
 
-    if (deletedRows !== 0 && deletedRows !== 1) {
+    if (deletedRowsFromProductCarts !== 1) {
       throw new Error("INVALID_INPUT");
     }
 
-    deletedRows = (
-      await dataSource.query(
+    const deletedRowFromCarts = (
+      await queryRunner.query(
         `
       DELETE
       FROM carts
@@ -91,12 +91,13 @@ const deleteCart = async (userId, cartId, productId) => {
       )
     ).affectedRows;
 
-    if (deletedRows !== 0 && deletedRows !== 1) {
+    if (deletedRowFromCarts !== 1) {
       throw new Error("INVALID_INPUT");
     }
 
-    queryRunner.commitTransaction();
-    return deletedRows;
+    await queryRunner.commitTransaction();
+
+    return deletedRowFromCarts;
   } catch (error) {
     console.error(
       "Error occurred during transaction. Rollback triggered.",
