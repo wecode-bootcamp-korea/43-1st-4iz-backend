@@ -154,7 +154,19 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   );
 };
 
+const getProductById = async (productId) => {
+  return await dataSource.query(
+    `
+    SELECT price
+    FROM products
+    WHERE id = ?
+  `,
+    [productId]
+  );
+};
+
 module.exports = {
   createProduct,
   listProduct,
+  getProductById,
 };
