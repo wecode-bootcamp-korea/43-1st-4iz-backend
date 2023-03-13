@@ -64,16 +64,6 @@ const createCart = async (userId, productId, color, size, quantity) => {
 const updateCart = async (userId, cartId, productId, quantity) => {
   const [product] = await getProductById(productId);
 
-  /*
-  await dataSource.query(
-    `
-    SELECT price
-    FROM products
-    WHERE id = ?
-  `,
-    [productId]
-  );
-*/
   const updatedRows = (
     await dataSource.query(
       `
