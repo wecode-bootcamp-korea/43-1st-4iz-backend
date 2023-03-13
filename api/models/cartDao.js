@@ -16,7 +16,7 @@ const listCart = async (userId) => {
       pcj.category AS categories,
       o.color AS color,
       o.size AS size,
-      oj.available_options AS available_options
+      oj.options AS options
     FROM carts AS c
     JOIN users AS u ON u.id = c.user_id
     JOIN product_carts AS pc on pc.cart_id = c.id
@@ -42,11 +42,11 @@ const listCart = async (userId) => {
         product_id,
         JSON_ARRAYAGG(
           JSON_OBJECT(
-            "available_colors", o.color,
-            "available_sizes", o.size,
-            "available_quantities", o.quantity
+            "color", o.color,
+            "size", o.size,
+            "quantity", o.quantity
           )
-        ) AS available_options
+        ) AS options
       FROM options AS o
       GROUP BY product_id
     ) oj ON oj.product_id = p.id
