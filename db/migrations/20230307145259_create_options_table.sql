@@ -6,7 +6,7 @@ CREATE TABLE options (
   size VARCHAR(100) NOT NULL,
   quantity INT NOT NULL,
   CONSTRAINT options_product_id_fkey FOREIGN KEY (product_id) REFERENCES products (id),
-  UNIQUE (color, size)
+  UNIQUE (product_id, color, size)
 );
 
 -- migrate:down
