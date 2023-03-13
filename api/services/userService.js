@@ -48,7 +48,7 @@ const signIn = async (email, password) => {
 
   if (!result) {
     const error = new Error("NO_SUCH_USER");
-    error.statusCode = 400;
+    error.statusCode = 404;
 
     throw error;
   }
