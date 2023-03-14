@@ -18,16 +18,7 @@ const hashPassword = async (plaintextPassword) => {
 const checkDuplicateUser = async (email) => {
   await validateEmail(email);
 
-  const result = await userDao.checkIfUserExistsByEmail(email);
-
-  if (result) {
-    const error = new Error("EXISTING_USER");
-    error.statusCode = 400;
-
-    throw error;
-  }
-
-  return result;
+  return await userDao.checkIfUserExistsByEmail(email);
 };
 
 const signUp = async (name, email, password, phoneNumber, birthday) => {
@@ -54,7 +45,7 @@ const signIn = async (email, password) => {
 
   if (!result) {
     const error = new Error("NO_SUCH_USER");
-    error.statusCode = 400;
+    error.statusCode = 404;
 
     throw error;
   }

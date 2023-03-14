@@ -1,5 +1,6 @@
 const dataSource = require("./dataSource");
 const queryRunner = dataSource.createQueryRunner();
+const { ProductQueryBuilder } = require("./productQueryBuilder");
 
 const createProduct = async (
   name,
@@ -104,6 +105,68 @@ const createProduct = async (
   }
 };
 
+const listProduct = async (limit, offset, search, sort, filters) => {
+  const filterQuery = new ProductQueryBuilder(
+    limit,
+    offset,
+    search,
+    sort,
+    filters
+  ).build();
+
+  return await dataSource.query(
+    `
+    SELECT
+      p.id AS id,
+      p.name AS name,
+      p.price AS price,
+      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
+    CASE
+      WHEN p.gender = "M" THEN "남성"
+      WHEN p.gender = "W" THEN "여성"
+      ELSE ""
+    END AS gender,
+      IF(p.is_new = 1, "신상품", "") AS new,
+      COUNT(DISTINCT(o.color)) AS color_count,
+      p.discount_rate AS discount_rate,
+      DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
+      ij.url AS images,
+      pcj.category AS categories
+    FROM products AS p
+    JOIN options AS o ON o.product_id = p.id
+    JOIN (
+      SELECT 
+        product_id,
+        JSON_ARRAYAGG(i.url) AS url
+      FROM images AS i
+      GROUP BY product_id
+    ) ij ON ij.product_id = p.id
+    JOIN (
+      SELECT  
+        product_id,
+        JSON_ARRAYAGG(c.name) AS category
+      FROM product_categories AS pc
+      JOIN categories AS c ON c.id = pc.category_id
+      GROUP BY product_id
+    ) pcj ON pcj.product_id = p.id
+    ${filterQuery}
+  `
+  );
+};
+
+const getProductById = async (productId) => {
+  return await dataSource.query(
+    `
+    SELECT price
+    FROM products
+    WHERE id = ?
+  `,
+    [productId]
+  );
+};
+
 module.exports = {
   createProduct,
+  listProduct,
+  getProductById,
 };
