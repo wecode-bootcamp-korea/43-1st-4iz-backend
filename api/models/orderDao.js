@@ -29,6 +29,74 @@ const createOrder = async (
   await queryRunner.startTransaction();
 
   try {
+    const [total] = await queryRunner.query(
+      `
+      SELECT
+        SUM(price_sum) AS price,
+        COUNT(quantity) AS quantity
+      FROM carts
+    `
+    );
+
+    const orderNumber = await generateRandomString("order");
+    const order = await queryRunner.query(
+      `
+        INSERT
+        INTO orders (
+          user_id,
+          total_price,
+          total_quantity,
+          order_number
+        ) VALUES (?, ?, ?, ?)
+      `,
+      [userId, total.price, total.quantity, orderNumber]
+    );
+
+    const orderId = order.insertId;
+
+    const shipmentNumber = await generateRandomString("shipment");
+    await queryRunner.query(
+      `
+        INSERT
+        INTO shipment (
+          order_id,
+          name,
+          street,
+          address,
+          zipcode,
+          phone_number,
+          email,
+          detail,
+          tracking_number
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ? ,?)
+      `,
+      [
+        orderId,
+        name,
+        street,
+        address,
+        zipcode,
+        phoneNumber,
+        email,
+        "shipment",
+        shipmentNumber,
+      ]
+    );
+
+    const paymentNumber = await generateRandomString("payment");
+    const payment = await queryRunner.query(
+      `
+      INSERT
+      INTO payment (
+        order_id,
+        amount,
+        payment_number,
+        payment_method
+      ) VALUES (?, ?, ?, ?)
+    `,
+      [orderId, total.price, paymentNumber, paymentMethod.KAKAO_PAY]
+    );
+
     const carts = await queryRunner.query(
       `
       SELECT
@@ -37,118 +105,115 @@ const createOrder = async (
         price_sum,
         quantity
       FROM carts
-      WHERE user_id = ?  
+      WHERE user_id = ?
+      ORDER BY id
     `,
       [userId]
     );
 
-    carts.forEach(async (cart) => {
-      const orderNumber = await generateRandomString("order");
+    const cartIds = carts.map((cart) => {
+      return cart.id;
+    });
 
-      const order = await queryRunner.query(
-        `
-        INSERT
-        INTO orders (
-          user_id,
-          status_id,
-          option_id,
-          detail,
-          order_number
-        ) VALUES (?, ?, ?, ?, ?)
+    const optionIds = carts.map((cart) => {
+      return cart.option_id;
+    });
+
+    const cartPriceSums = carts.map((cart) => {
+      return cart.price_sum;
+    });
+
+    const cartQuantities = carts.map((cart) => {
+      return cart.quantity;
+    });
+
+    const productObjects = await queryRunner.query(
+      `
+      SELECT
+        pc.product_id
+      FROM product_carts AS pc
+      WHERE pc.cart_id IN (?)
+      ORDER BY pc.cart_id
+    `,
+      [cartIds]
+    );
+
+    const productQuantityObjects = await queryRunner.query(
+      `
+      SELECT
+        quantity
+      FROM options
+      WHERE id IN (?)
+      ORDER BY FIELD(id, ?)
       `,
-        [
-          userId,
-          orderStatusEnum.FILLED,
-          cart.option_id,
-          `order ${cart.id}`,
-          orderNumber,
-        ]
-      );
+      [optionIds, optionIds]
+    );
 
-      const [productCart] = await queryRunner.query(
-        `
-          SELECT product_id
-          FROM product_carts
-          WHERE cart_id = ?
-        `,
-        [cart.id]
-      );
+    const productIdArray = productObjects.map((productObj) => {
+      return productObj.product_id;
+    });
 
-      await queryRunner.query(
-        `
-          INSERT
-          INTO product_orders (
-            product_id,
-            order_id,
-            price_sum,
-            quantity
-          ) VALUES (? ,? ,?, ?)
-        `,
-        [productCart.product_id, order.insertId, cart.price_sum, cart.quantity]
-      );
+    const productQuantityArray = productQuantityObjects.map(
+      (producytQuantityObj) => {
+        return producytQuantityObj.quantity;
+      }
+    );
 
-      const shipmentNumber = await generateRandomString("shipment");
+    console.log(`option ids: ${optionIds}`);
+    console.log(`cart id: ${cartIds}`);
+    console.log(`productId: ${productIdArray}`);
+    console.log(`cart quantites: ${cartQuantities}`);
+    console.log(`stock: ${productQuantityArray}`);
 
-      await queryRunner.query(
-        `
-          INSERT
-          INTO shipment (
-            order_id,
-            name,
-            street,
-            address,
-            zipcode,
-            phone_number,
-            email,
-            detail,
-            tracking_number
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `,
-        [
-          order.insertId,
-          name,
-          street,
-          address,
-          zipcode,
-          phoneNumber,
-          email,
-          `shipment ${cart.id}`,
-          shipmentNumber,
-        ]
-      );
+    const productOrderArray = [];
+    const orderDetailArray = [];
+    for (let i = 0; i < cartIds.length; i++) {
+      productOrderArray.push([productIdArray[i], orderId, optionIds[i]]);
+      orderDetailArray.push([
+        orderId,
+        orderStatusEnum.FILLED,
+        cartPriceSums[i],
+        cartQuantities[i],
+      ]);
+    }
 
-      const paymentNumber = await generateRandomString("payment");
+    console.log(productOrderArray);
+    console.log(orderDetailArray);
 
-      await queryRunner.query(
-        `
-        INSERT
-        INTO payment (
-          order_id,
-          amount,
-          payment_number,
-          payment_method
-        ) VALUES (?, ?, ?, ?)
-      `,
-        [order.insertId, cart.price_sum, paymentNumber, paymentMethod.KAKAO_PAY]
-      );
+    await queryRunner.query(
+      `
+      INSERT
+      INTO product_orders (
+        product_id,
+        order_id,
+        option_id
+      ) VALUES (?)
+    `,
+      productOrderArray
+    );
 
-      const [option] = await queryRunner.query(
-        `
-        SELECT quantity
-        FROM options
-        WHERE id = ?
-      `,
-        [cart.option_id]
-      );
+    await queryRunner.query(
+      `
+      INSERT
+      INTO order_details (
+        order_id,
+        status_id,
+        price_sum,
+        quantity
+      ) VALUES (?)
+    `,
+      orderDetailArray
+    );
 
+    for (let i = 0; i < cartIds.length; i++) {
       const updatedRows = (
         await queryRunner.query(
           `
-        UPDATE options
-        SET quantity = ?
-        WHERE id = ?
-      `,
-          [option.quantity - cart.quantity, cart.option_id]
+          UPDATE options
+          SET quantity = ?
+          WHERE id = ?
+        `,
+          [productQuantityArray[i] - cartQuantities[i], optionIds[i]]
         )
       ).affectedRows;
 
@@ -163,7 +228,7 @@ const createOrder = async (
           FROM product_carts
           WHERE product_id = ? AND cart_id = ?
         `,
-          [productCart.product_id, cart.id]
+          [productIdArray[i], cartIds[i]]
         )
       ).affectedRows;
 
@@ -178,14 +243,14 @@ const createOrder = async (
         FROM carts
         WHERE user_id = ? AND id = ?  
       `,
-          [userId, cart.id]
+          [userId, cartIds[i]]
         )
       ).affectedRows;
 
       if (deletedRowsFromCarts !== 1) {
         throw new Error("INVALID_INPUT");
       }
-    });
+    }
 
     await queryRunner.commitTransaction();
   } catch (error) {
