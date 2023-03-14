@@ -92,7 +92,55 @@ const updateCart = async (userId, cartId, productId, quantity) => {
   return result;
 };
 
+const deleteCart = async (userId, cartId, productId) => {
+  await queryRunner.connect();
+
+  try {
+    await queryRunner.startTransaction();
+    const deletedRowsFromProductCarts = (
+      await queryRunner.query(
+        `
+        DELETE
+        FROM product_carts
+        WHERE product_id = ? AND cart_id = ?
+      `,
+        [productId, cartId]
+      )
+    ).affectedRows;
+
+    if (deletedRowsFromProductCarts !== 1) {
+      throw new Error("INVALID_INPUT");
+    }
+
+    const deletedRowFromCarts = (
+      await queryRunner.query(
+        `
+      DELETE
+      FROM carts
+      WHERE user_id = ? AND id = ?  
+    `,
+        [userId, cartId]
+      )
+    ).affectedRows;
+
+    if (deletedRowFromCarts !== 1) {
+      throw new Error("INVALID_INPUT");
+    }
+
+    await queryRunner.commitTransaction();
+
+    return deletedRowFromCarts;
+  } catch (error) {
+    console.error(
+      "Error occurred during transaction. Rollback triggered.",
+      error
+    );
+    await queryRunner.rollbackTransaction();
+  }
+};
+
 module.exports = {
   createCart,
   updateCart,
+  deleteCart,
 };

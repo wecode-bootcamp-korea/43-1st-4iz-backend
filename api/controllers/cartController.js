@@ -13,7 +13,6 @@ const createCart = catchAsync(async (req, res) => {
 
     throw error;
   }
-
   const insertId = await cartService.createCart(
     userId,
     productId,
@@ -44,10 +43,29 @@ const updateCart = catchAsync(async (req, res) => {
     productId,
     quantity
   );
+
   return res.status(201).json({ data });
+});
+
+const deleteCart = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const cartId = +req.params.cartId;
+  const productId = +req.params.productId;
+
+  if (!productId || !cartId) {
+    const error = new Error("KEY_ERROR");
+    error.statusCode = 400;
+
+    throw error;
+  }
+
+  await cartService.deleteCart(userId, cartId, productId);
+
+  return res.status(204).send();
 });
 
 module.exports = {
   createCart,
   updateCart,
+  deleteCart,
 };
