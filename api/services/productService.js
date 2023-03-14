@@ -44,7 +44,7 @@ const createProduct = async (
 };
 
 const productInfo = async (productId) => {
-    return productDao.showProduct(productId);
+    return productDao.getProductDetailByld(productId);
 }
 
 module.exports = {

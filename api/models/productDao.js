@@ -104,10 +104,9 @@ const createProduct = async (
   }
 };
 
-const showProduct = async (productId) => {
+const getProductDetailByld = async (productId) => {
     const [result] = await dataSource.query(`
     SELECT
-        p.category as productCategory,
         p.name as productName,
         p.price as productPrice,
         p.gender as productGender,
@@ -119,11 +118,11 @@ const showProduct = async (productId) => {
         product_options.color_name as productColor,
         product_options.size_name as productSize,
         product_options.quantity as productQuantity,
-        subcategories.name as productSubcategory
+        categories.name as productCategory
       FROM products as p
       JOIN product_options ON p.id = product_options.product_id
-      JOIN product_subcategories ON p.id = product_subcategories.product_id
-      JOIN subcategories ON subcategories.id = product_subcategories.subcategory_id
+      JOIN product_categories ON p.id = product_categories.product_id
+      JOIN categories ON categories.id = product_categories.category_id
       WHERE p.id = ?
     `,[productId]);
 
@@ -132,5 +131,5 @@ const showProduct = async (productId) => {
 
 module.exports = {
   createProduct,
-  showProduct,
+  getProductDetailByld,
 };
