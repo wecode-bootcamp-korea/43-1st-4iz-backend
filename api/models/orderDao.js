@@ -1,29 +1,19 @@
-const crypto = require("crypto");
+const { v4: uuidv4 } = require("uuid");
+
 const dataSource = require("./dataSource");
+const { orderStatusEnum, paymentMethod } = require("../utils/enum");
 
 const queryRunner = dataSource.createQueryRunner();
 
-const generateRandomNumber = async (type) => {
-  const randomBytes = crypto.randomBytes(8);
-  const hexString = randomBytes.toString("hex");
-  let randomString = `${hexString.substr(0, 4)}-${hexString.substr(
-    4,
-    4
-  )}-${hexString.substr(8, 4)}-${hexString.substr(12, 4)}`;
-
+const generateRandomString = async (type) => {
   switch (type) {
     case "order":
-      randomString = "ORDER-" + randomString;
-      break;
+      return "ORDER-" + uuidv4();
     case "shipment":
-      randomString = "SHIPMENT-" + randomString;
-      break;
+      return "SHIPMENT-" + uuidv4();
     case "payment":
-      randomString = "PAYMENT-" + randomString;
-      break;
+      return "PAYMENT-" + uuidv4();
   }
-
-  return randomString;
 };
 
 const createOrder = async (
@@ -53,7 +43,7 @@ const createOrder = async (
     );
 
     carts.forEach(async (cart) => {
-      const orderNumber = await generateRandomNumber("order");
+      const orderNumber = await generateRandomString("order");
 
       const order = await queryRunner.query(
         `
@@ -66,7 +56,13 @@ const createOrder = async (
           order_number
         ) VALUES (?, ?, ?, ?, ?)
       `,
-        [userId, 1, cart.option_id, `order ${cart.id}`, orderNumber]
+        [
+          userId,
+          orderStatusEnum.FILLED,
+          cart.option_id,
+          `order ${cart.id}`,
+          orderNumber,
+        ]
       );
 
       const [productCart] = await queryRunner.query(
@@ -91,7 +87,7 @@ const createOrder = async (
         [productCart.product_id, order.insertId, cart.price_sum, cart.quantity]
       );
 
-      const shipmentNumber = await generateRandomNumber("shipment");
+      const shipmentNumber = await generateRandomString("shipment");
 
       await queryRunner.query(
         `
@@ -121,7 +117,7 @@ const createOrder = async (
         ]
       );
 
-      const paymentNumber = await generateRandomNumber("payment");
+      const paymentNumber = await generateRandomString("payment");
 
       await queryRunner.query(
         `
@@ -133,12 +129,7 @@ const createOrder = async (
           payment_method
         ) VALUES (?, ?, ?, ?)
       `,
-        [
-          order.insertId,
-          cart.price_sum,
-          paymentNumber,
-          `payment_method ${cart.id}`,
-        ]
+        [order.insertId, cart.price_sum, paymentNumber, paymentMethod.KAKAO_PAY]
       );
 
       const [option] = await queryRunner.query(
@@ -162,10 +153,10 @@ const createOrder = async (
       ).affectedRows;
 
       if (updatedRows !== 1) {
-        throw new Error("WRONG_NUMBER_OF_RECORDS_UPDATED");
+        throw new Error("INVALID_INPUT");
       }
 
-      let deletedRows = (
+      const deletedRowsFromProductCarts = (
         await queryRunner.query(
           `
           DELETE
@@ -176,12 +167,12 @@ const createOrder = async (
         )
       ).affectedRows;
 
-      if (deletedRows !== 0 && deletedRows !== 1) {
-        throw new Error("WRONG_NUMBER_OF_RECORDS_DELETED");
+      if (deletedRowsFromProductCarts !== 1) {
+        throw new Error("INVALID_INPUT");
       }
 
-      deletedRows = (
-        await dataSource.query(
+      const deletedRowsFromCarts = (
+        await queryRunner.query(
           `
         DELETE
         FROM carts
@@ -191,8 +182,8 @@ const createOrder = async (
         )
       ).affectedRows;
 
-      if (deletedRows !== 0 && deletedRows !== 1) {
-        throw new Error("WRONG_NUMBER_OF_RECORDS_DELETED");
+      if (deletedRowsFromCarts !== 1) {
+        throw new Error("INVALID_INPUT");
       }
     });
 
