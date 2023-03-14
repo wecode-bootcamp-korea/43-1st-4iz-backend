@@ -10,6 +10,10 @@ const createCart = async (userId, productId, color, size, quantity) => {
   return await cartDao.createCart(userId, productId, color, size, quantity);
 };
 
+const listCart = async (userId) => {
+  return await cartDao.listCart(userId);
+};
+
 const updateCart = async (userId, cartId, productId, quantity) => {
   await validateQuantity(quantity);
 
@@ -22,6 +26,7 @@ const deleteCart = async (userId, cartId, productId) => {
 
 module.exports = {
   createCart,
+  listCart,
   updateCart,
   deleteCart,
 };
