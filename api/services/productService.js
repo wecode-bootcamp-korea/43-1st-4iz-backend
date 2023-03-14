@@ -43,10 +43,6 @@ const createProduct = async (
   );
 };
 
-const getProductDetailById = async (productId) => {
-  return await productDao.getProductDetailById(productId);
-};
-
 const listProduct = async (limit, offset, search, sort, filters) => {
   if (filters.hasOwnProperty("category")) {
     let value = filters["category"];
@@ -60,8 +56,17 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   return await productDao.listProduct(limit, offset, search, sort, filters);
 };
 
+const getProductDetailById = async (productId) => {
+  return await productDao.getProductDetailById(productId);
+};
+
+const getRecommendation = async (productId) => {
+  return await productDao.getRecommendation(productId);
+};
+
 module.exports = {
   createProduct,
   listProduct,
   getProductDetailById,
+  getRecommendation,
 };
