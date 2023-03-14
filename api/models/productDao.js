@@ -154,6 +154,59 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   );
 };
 
+const getProductDetailById = async (productId) => {
+  return await dataSource.query(
+    `
+    SELECT
+      p.id AS id,
+      p.name AS name,
+      p.price AS price,
+      p.description AS description,
+    IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
+    CASE
+      WHEN p.gender = "M" THEN "남성"
+      WHEN p.gender = "W" THEN "여성"
+      ELSE ""
+    END AS gender,
+      IF(p.is_new = 1, "신상품", "") AS new,
+      p.discount_rate AS discount_rate,
+      DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
+      ij.url AS images,
+      pcj.category AS categories,
+      oj.options AS options
+    FROM products AS p
+    JOIN (
+      SELECT
+        product_id,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            "color", o.color,
+            "size", o.size
+          )
+        ) AS options
+      FROM options AS o
+      GROUP BY product_id
+    ) oj ON oj.product_id = p.id
+    JOIN (
+      SELECT 
+        product_id,
+        JSON_ARRAYAGG(i.url) AS url
+      FROM images AS i
+      GROUP BY product_id
+    ) ij ON ij.product_id = p.id
+    JOIN (
+      SELECT  
+        product_id,
+        JSON_ARRAYAGG(c.name) AS category
+      FROM product_categories AS pc
+      JOIN categories AS c ON c.id = pc.category_id
+      GROUP BY product_id
+    ) pcj ON pcj.product_id = p.id
+    WHERE p.id = ?`,
+    [productId]
+  );
+};
+
 const getProductById = async (productId) => {
   return await dataSource.query(
     `
@@ -168,5 +221,6 @@ const getProductById = async (productId) => {
 module.exports = {
   createProduct,
   listProduct,
+  getProductDetailById,
   getProductById,
 };

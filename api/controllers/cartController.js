@@ -4,8 +4,7 @@ const { catchAsync } = require("../utils/error");
 const createCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const productId = +req.params.productId;
-  const { color, size } = req.query;
-  const { quantity = 1 } = req.body;
+  const { color, size, quantity = 1 } = req.body;
 
   if (!productId || !color || !size) {
     const error = new Error("KEY_ERROR");
@@ -13,7 +12,6 @@ const createCart = catchAsync(async (req, res) => {
 
     throw error;
   }
-
   const insertId = await cartService.createCart(
     userId,
     productId,
@@ -23,6 +21,14 @@ const createCart = catchAsync(async (req, res) => {
   );
 
   return res.status(201).json({ insertId });
+});
+
+const listCart = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+
+  const data = await cartService.listCart(userId);
+
+  return res.status(200).json({ data });
 });
 
 const updateCart = catchAsync(async (req, res) => {
@@ -48,16 +54,26 @@ const updateCart = catchAsync(async (req, res) => {
   return res.status(201).json({ data });
 });
 
-const listCart = catchAsync(async (req, res) => {
+const deleteCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
+  const cartId = +req.params.cartId;
+  const productId = +req.params.productId;
 
-  const data = await cartService.listCart(userId);
+  if (!productId || !cartId) {
+    const error = new Error("KEY_ERROR");
+    error.statusCode = 400;
 
-  return res.status(200).json({ data });
+    throw error;
+  }
+
+  await cartService.deleteCart(userId, cartId, productId);
+
+  return res.status(204).send();
 });
 
 module.exports = {
   createCart,
-  updateCart,
   listCart,
+  updateCart,
+  deleteCart,
 };

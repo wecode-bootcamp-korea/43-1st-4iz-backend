@@ -10,18 +10,23 @@ const createCart = async (userId, productId, color, size, quantity) => {
   return await cartDao.createCart(userId, productId, color, size, quantity);
 };
 
+const listCart = async (userId) => {
+  return await cartDao.listCart(userId);
+};
+
 const updateCart = async (userId, cartId, productId, quantity) => {
   await validateQuantity(quantity);
 
   return await cartDao.updateCart(userId, cartId, productId, quantity);
 };
 
-const listCart = async (userId) => {
-  return await cartDao.listCart(userId);
+const deleteCart = async (userId, cartId, productId) => {
+  return await cartDao.deleteCart(userId, cartId, productId);
 };
 
 module.exports = {
   createCart,
-  updateCart,
   listCart,
+  updateCart,
+  deleteCart,
 };
