@@ -1,6 +1,9 @@
 const { productService } = require("../services");
 const { catchAsync } = require("../utils/error");
 
+const LIMIT_DEFAULT = 10;
+const OFFSET_DEFAULT = 0;
+
 const createProduct = catchAsync(async (req, res) => {
   const {
     name,
@@ -74,7 +77,61 @@ const productInfo = catchAsync (async (req, res) => {
     return res.status(200).json({productResult});
 })
 
+const listProduct = catchAsync(async (req, res) => {
+  const {
+    limit = LIMIT_DEFAULT,
+    offset = OFFSET_DEFAULT,
+    search = "",
+    sort = "date",
+    ...filters
+  } = req.query;
+
+  const result = await productService.listProduct(
+    limit,
+    offset,
+    search,
+    sort,
+    filters
+  );
+
+  return res.status(200).json({ data: result });
+});
+
+const getProductDetailById = catchAsync(async (req, res) => {
+  const productId = +req.params.productId;
+
+  if (!productId) {
+    const error = new Error("KEY_ERROR");
+    error.status = 400;
+
+    throw error;
+  }
+
+  const result = await productService.getProductDetailById(productId);
+
+  return res.status(200).json({ data: result });
+});
+
+const getRecommendation = catchAsync(async (req, res) => {
+  const productId = +req.params.productId;
+
+  if (!productId) {
+    const error = new Error("KEY_ERROR");
+    error.status = 400;
+
+    throw error;
+  }
+
+  const result = await productService.getRecommendation(productId);
+
+  return res.status(200).json({ data: result });
+});
+
 module.exports = {
   createProduct,
+  listProduct,
+  getProductDetailById,
+  getRecommendation,
   productInfo,
 };
+

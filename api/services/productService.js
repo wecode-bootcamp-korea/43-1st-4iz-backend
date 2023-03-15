@@ -47,7 +47,32 @@ const productInfo = async (productId) => {
     return productDao.getProductDetailById(productId);
 }
 
+const listProduct = async (limit, offset, search, sort, filters) => {
+  if (filters.hasOwnProperty("category")) {
+    let value = filters["category"];
+    value = value.replaceAll('"', "");
+    filters["category"] = value;
+  }
+
+  search = search.replaceAll('"', "");
+  sort = sort.replaceAll('"', "");
+
+  return await productDao.listProduct(limit, offset, search, sort, filters);
+};
+
+const getProductDetailById = async (productId) => {
+  return await productDao.getProductDetailById(productId);
+};
+
+const getRecommendation = async (productId) => {
+  return await productDao.getRecommendation(productId);
+};
+
 module.exports = {
   createProduct,
-  productInfo
+  listProduct,
+  getProductDetailById,
+  getRecommendation,
+  productInfo,
 };
+
