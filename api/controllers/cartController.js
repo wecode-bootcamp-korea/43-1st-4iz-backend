@@ -1,14 +1,14 @@
 const { cartService } = require("../services");
 const { catchAsync } = require("../utils/error");
 
-const QUANTITY_DEFAULT = 1;
+const DEFAULT_QUANTITY = 1;
 
 const createCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const productId = +req.params.productId;
-  const { color, size, quantity = QUANTITY_DEFAULT } = req.body;
+  const { color, size, quantity = DEFAULT_QUANTITY } = req.body;
 
-  if (!productId || !color || !size) {
+  if (!userId || !productId || !color || !size) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 
@@ -28,6 +28,13 @@ const createCart = catchAsync(async (req, res) => {
 const listCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
 
+  if (!userId) {
+    const error = new Error("KEY_ERROR");
+    error.statusCode = 400;
+
+    throw error;
+  }
+
   const data = await cartService.listCart(userId);
 
   return res.status(200).json({ data });
@@ -39,7 +46,7 @@ const updateCart = catchAsync(async (req, res) => {
   const productId = +req.params.productId;
   const { quantity } = req.body;
 
-  if (!cartId || !productId || !quantity) {
+  if (!userId || !cartId || !productId || !quantity) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 
@@ -61,7 +68,7 @@ const deleteCart = catchAsync(async (req, res) => {
   const cartId = +req.params.cartId;
   const productId = +req.params.productId;
 
-  if (!productId || !cartId) {
+  if (!userId || !cartId || !productId) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 

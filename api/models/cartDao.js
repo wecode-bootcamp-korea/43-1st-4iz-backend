@@ -58,8 +58,9 @@ const createCart = async (userId, productId, color, size, quantity) => {
 const listCart = async (userId) => {
   return await dataSource.query(
     `
-    SELECT 
-      p.id AS id,
+    SELECT
+      c.id AS cart_id,
+      p.id AS product_id,
       p.name AS name,
       c.price_sum AS price_sum,
       IF(p.discount_rate > 0, c.price_sum * (1 - p.discount_rate / 100) , "") AS discounted_price_sum,
@@ -105,6 +106,20 @@ const listCart = async (userId) => {
   `,
     [userId]
   );
+};
+const checkIfCartExistsById = async (cartId) => {
+  const [result] = await dataSource.query(
+    `
+    SELECT EXISTS(
+      SELECT id 
+      FROM carts 
+      WHERE id = ?
+    ) AS value
+  `,
+    [cartId]
+  );
+
+  return !!parseInt(result.value);
 };
 
 const updateCart = async (userId, cartId, productId, quantity) => {
@@ -195,6 +210,7 @@ const deleteCart = async (userId, cartId, productId) => {
 module.exports = {
   createCart,
   listCart,
+  checkIfCartExistsById,
   updateCart,
   deleteCart,
 };

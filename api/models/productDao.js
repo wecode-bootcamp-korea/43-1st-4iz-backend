@@ -154,6 +154,21 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   );
 };
 
+const checkIfProductExistsById = async (productId) => {
+  const [result] = await dataSource.query(
+    `
+    SELECT EXISTS(
+      SELECT id 
+      FROM products 
+      WHERE id = ?
+    ) AS value
+  `,
+    [productId]
+  );
+
+  return !!parseInt(result.value);
+};
+
 const getProductDetailById = async (productId) => {
   return await dataSource.query(
     `
@@ -221,6 +236,7 @@ const getProductById = async (productId) => {
 module.exports = {
   createProduct,
   listProduct,
+  checkIfProductExistsById,
   getProductDetailById,
   getProductById,
 };
