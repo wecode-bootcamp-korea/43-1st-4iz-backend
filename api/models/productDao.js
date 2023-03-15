@@ -104,7 +104,7 @@ const createProduct = async (
   }
 };
 
-const getProductDetailByld = async (productId) => {
+const getProductDetailById = async (productId) => {
     const [result] = await dataSource.query(`
     SELECT
         p.name as productName,
@@ -131,5 +131,5 @@ const getProductDetailByld = async (productId) => {
 
 module.exports = {
   createProduct,
-  getProductDetailByld,
+  getProductDetailById,
 };
