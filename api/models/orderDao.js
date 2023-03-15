@@ -33,9 +33,11 @@ const createOrder = async (
       `
       SELECT
         SUM(price_sum) AS price,
-        COUNT(quantity) AS quantity
+        SUM(quantity) AS quantity
       FROM carts
-    `
+      WHERE user_id = ?
+    `,
+      [userId]
     );
 
     const orderNumber = await generateRandomString("order");
@@ -159,51 +161,32 @@ const createOrder = async (
       }
     );
 
-    console.log(`option ids: ${optionIds}`);
-    console.log(`cart id: ${cartIds}`);
-    console.log(`productId: ${productIdArray}`);
-    console.log(`cart quantites: ${cartQuantities}`);
-    console.log(`stock: ${productQuantityArray}`);
-
-    const productOrderArray = [];
-    const orderDetailArray = [];
     for (let i = 0; i < cartIds.length; i++) {
-      productOrderArray.push([productIdArray[i], orderId, optionIds[i]]);
-      orderDetailArray.push([
-        orderId,
-        orderStatusEnum.FILLED,
-        cartPriceSums[i],
-        cartQuantities[i],
-      ]);
+      await queryRunner.query(
+        `
+        INSERT
+        INTO product_orders (
+          product_id,
+          order_id,
+          option_id
+        ) VALUES (?, ?, ?)
+      `,
+        [productIdArray[i], orderId, optionIds[i]]
+      );
+
+      await queryRunner.query(
+        `
+        INSERT
+        INTO order_details (
+          order_id,
+          status_id,
+          price_sum,
+          quantity
+        ) VALUES (?, ?, ?, ?)
+      `,
+        [orderId, orderStatusEnum.FILLED, cartPriceSums[i], cartQuantities[i]]
+      );
     }
-
-    console.log(productOrderArray);
-    console.log(orderDetailArray);
-
-    await queryRunner.query(
-      `
-      INSERT
-      INTO product_orders (
-        product_id,
-        order_id,
-        option_id
-      ) VALUES (?)
-    `,
-      productOrderArray
-    );
-
-    await queryRunner.query(
-      `
-      INSERT
-      INTO order_details (
-        order_id,
-        status_id,
-        price_sum,
-        quantity
-      ) VALUES (?)
-    `,
-      orderDetailArray
-    );
 
     for (let i = 0; i < cartIds.length; i++) {
       const updatedRows = (
