@@ -174,7 +174,7 @@ const getProductDetailById = async (productId) => {
       p.price AS price,
       p.description AS description,
       IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
-      p.gender,
+      p.gender AS gender,
       IF(p.is_new = 1, "신상품", "") AS new,
       p.discount_rate AS discount_rate,
       DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
