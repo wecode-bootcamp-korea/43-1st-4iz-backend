@@ -72,8 +72,6 @@ const listProduct = catchAsync(async (req, res) => {
     ...filters
   } = req.query;
 
-  console.log(filters);
-
   const result = await productService.listProduct(
     limit,
     offset,
