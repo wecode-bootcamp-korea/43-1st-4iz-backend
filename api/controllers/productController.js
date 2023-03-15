@@ -98,8 +98,24 @@ const getProductDetailById = catchAsync(async (req, res) => {
   return res.status(200).json({ data: result });
 });
 
+const getRecommendation = catchAsync(async (req, res) => {
+  const productId = +req.params.productId;
+
+  if (!productId) {
+    const error = new Error("KEY_ERROR");
+    error.status = 400;
+
+    throw error;
+  }
+
+  const result = await productService.getRecommendation(productId);
+
+  return res.status(200).json({ data: result });
+});
+
 module.exports = {
   createProduct,
-  getProductDetailById,
   listProduct,
+  getProductDetailById,
+  getRecommendation,
 };
