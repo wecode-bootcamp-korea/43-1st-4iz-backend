@@ -7,6 +7,7 @@ CREATE TABLE carts (
   price_sum DECIMAL(15, 3) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE (user_id, option_id),
   CONSTRAINT carts_user_id_fkey FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
