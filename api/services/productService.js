@@ -43,10 +43,6 @@ const createProduct = async (
   );
 };
 
-const getProductDetailById = async (productId) => {
-  return await productDao.getProductDetailById(productId);
-};
-
 const listProduct = async (limit, offset, search, sort, filters) => {
   if (filters.hasOwnProperty("category")) {
     let value = filters["category"];
@@ -58,6 +54,19 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   sort = sort.replaceAll('"', "");
 
   return await productDao.listProduct(limit, offset, search, sort, filters);
+};
+
+const getProductDetailById = async (productId) => {
+  const result = await productDao.checkIfProductExistsById(productId);
+
+  if (!result) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
+  return await productDao.getProductDetailById(productId);
 };
 
 module.exports = {
