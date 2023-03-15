@@ -1,5 +1,6 @@
 const { productService } = require("../services");
 const { catchAsync } = require("../utils/error");
+
 const LIMIT_DEFAULT = 10;
 const OFFSET_DEFAULT = 0;
 
@@ -63,7 +64,7 @@ const createProduct = catchAsync(async (req, res) => {
 });
 
 const listProduct = catchAsync(async (req, res) => {
-  let {
+  const {
     limit = LIMIT_DEFAULT,
     offset = OFFSET_DEFAULT,
     search = "",
@@ -79,10 +80,26 @@ const listProduct = catchAsync(async (req, res) => {
     filters
   );
 
-  res.status(200).json(result);
+  return res.status(200).json({ data: result });
+});
+
+const getProductDetailById = catchAsync(async (req, res) => {
+  const productId = +req.params.productId;
+
+  if (!productId) {
+    const error = new Error("KEY_ERROR");
+    error.status = 400;
+
+    throw error;
+  }
+
+  const result = await productService.getProductDetailById(productId);
+
+  return res.status(200).json({ data: result });
 });
 
 module.exports = {
   createProduct,
+  getProductDetailById,
   listProduct,
 };
