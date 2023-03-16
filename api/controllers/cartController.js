@@ -17,7 +17,7 @@ const createCart = catchAsync(async (req, res) => {
   const insertNum = await cartService.createCart(userId, productId, options);
 
   return res.status(201).json({
-    message: `Products successfully inserted into your cart!`,
+    message: `Products successfully added into your cart!`,
   });
 });
 

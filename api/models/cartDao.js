@@ -54,7 +54,6 @@ const createCart = async (userId, productId, options) => {
     }
 
     await queryRunner.commitTransaction();
-    return options.length;
   } catch (error) {
     console.error(
       "Error occurred during transaction. Rollback triggered.",
