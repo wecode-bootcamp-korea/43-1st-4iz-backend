@@ -5,6 +5,7 @@ const {
   validateDiscountRate,
   validateQuantity,
   validateGender,
+  validateNumber,
 } = require("../utils/validation");
 
 const createProduct = async (

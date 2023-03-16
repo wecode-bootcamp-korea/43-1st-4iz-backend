@@ -5,6 +5,11 @@ const { loginRequired } = require("../utils/auth");
 
 const router = express.Router();
 
+router.post(
+  "/products/:productId/duplicate-option",
+  loginRequired,
+  cartController.checkIfCartExistsByUserIdAndOptions
+);
 router.post("/products/:productId", loginRequired, cartController.createCart);
 router.get("", loginRequired, cartController.listCart);
 router.patch(

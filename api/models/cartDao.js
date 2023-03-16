@@ -131,6 +131,48 @@ const checkIfCartExistsById = async (cartId) => {
   return !!parseInt(result.value);
 };
 
+const checkIfCartExistsByUserIdAndOptions = async (
+  userId,
+  productId,
+  options
+) => {
+  for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
+    const optionToArray = options[optionIndex].split("/");
+    const color = optionToArray[0];
+    const size = optionToArray[1];
+
+    const [option] = await dataSource.query(
+      `
+      SELECT id 
+      FROM options 
+      WHERE product_id = ? AND color = ? AND size = ?
+      `,
+      [productId, color, size]
+    );
+
+    if (!option) {
+      throw new Error("INVALID_INPUT");
+    }
+
+    const [result] = await dataSource.query(
+      `
+      SELECT EXISTS(
+        SELECT id
+        FROM carts
+        WHERE user_id = ? AND option_id = ?
+      ) AS value  
+      `,
+      [userId, option.id]
+    );
+
+    if (!!parseInt(result.value)) {
+      return `PRODUCT_WITH_OPTION(COLOR:${color},SIZE:${size})_ALREADY_IN_CART`;
+    }
+  }
+
+  return "NO_PRODUCT_WITH_SUCH_OPTION_IN_CART";
+};
+
 const updateCart = async (userId, cartId, productId, quantity) => {
   const [product] = await getProductById(productId);
 
@@ -220,6 +262,7 @@ module.exports = {
   createCart,
   listCart,
   checkIfCartExistsById,
+  checkIfCartExistsByUserIdAndOptions,
   updateCart,
   deleteCart,
 };
