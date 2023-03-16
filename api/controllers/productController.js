@@ -1,8 +1,8 @@
 const { productService } = require("../services");
 const { catchAsync } = require("../utils/error");
 
-const LIMIT_DEFAULT = 10;
-const OFFSET_DEFAULT = 0;
+const DEFAULT_LIMIT = 10;
+const DEFAULT_OFFSET = 0;
 
 const createProduct = catchAsync(async (req, res) => {
   const {
@@ -65,14 +65,14 @@ const createProduct = catchAsync(async (req, res) => {
 
 const listProduct = catchAsync(async (req, res) => {
   const {
-    limit = LIMIT_DEFAULT,
-    offset = OFFSET_DEFAULT,
+    limit = DEFAULT_LIMIT,
+    offset = DEFAULT_OFFSET,
     search = "",
     sort = "date",
     ...filters
   } = req.query;
 
-  const result = await productService.listProduct(
+  const data = await productService.listProduct(
     limit,
     offset,
     search,
@@ -80,7 +80,7 @@ const listProduct = catchAsync(async (req, res) => {
     filters
   );
 
-  return res.status(200).json({ data: result });
+  return res.status(200).json({ data });
 });
 
 const getProductDetailById = catchAsync(async (req, res) => {
@@ -93,9 +93,9 @@ const getProductDetailById = catchAsync(async (req, res) => {
     throw error;
   }
 
-  const result = await productService.getProductDetailById(productId);
+  const data = await productService.getProductDetailById(productId);
 
-  return res.status(200).json({ data: result });
+  return res.status(200).json({ data });
 });
 
 const getRecommendation = catchAsync(async (req, res) => {
@@ -108,9 +108,9 @@ const getRecommendation = catchAsync(async (req, res) => {
     throw error;
   }
 
-  const result = await productService.getRecommendation(productId);
+  const data = await productService.getRecommendation(productId);
 
-  return res.status(200).json({ data: result });
+  return res.status(200).json({ data });
 });
 
 module.exports = {
