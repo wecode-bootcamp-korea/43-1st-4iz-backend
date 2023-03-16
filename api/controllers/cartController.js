@@ -1,7 +1,7 @@
 const { cartService } = require("../services");
 const { catchAsync } = require("../utils/error");
 
-const QUANTITY_DEFAULT = 1;
+const DEFAULT_QUANTITY = 1;
 
 const createCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
@@ -57,7 +57,7 @@ const deleteCart = catchAsync(async (req, res) => {
   const cartId = +req.params.cartId;
   const productId = +req.params.productId;
 
-  if (!productId || !cartId) {
+  if (!cartId || !productId) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 

@@ -134,11 +134,7 @@ const listProduct = async (limit, offset, search, sort, filters) => {
       p.name AS name,
       p.price AS price,
       IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
-    CASE
-      WHEN p.gender = "M" THEN "남성"
-      WHEN p.gender = "W" THEN "여성"
-      ELSE ""
-    END AS gender,
+      p.gender,
       IF(p.is_new = 1, "신상품", "") AS new,
       COUNT(DISTINCT(o.color)) AS color_count,
       p.discount_rate AS discount_rate,
@@ -167,6 +163,21 @@ const listProduct = async (limit, offset, search, sort, filters) => {
   );
 };
 
+const checkIfProductExistsById = async (productId) => {
+  const [result] = await dataSource.query(
+    `
+    SELECT EXISTS(
+      SELECT id 
+      FROM products 
+      WHERE id = ?
+    ) AS value
+  `,
+    [productId]
+  );
+
+  return !!parseInt(result.value);
+};
+
 const getProductDetailById = async (productId) => {
   return await dataSource.query(
     `
@@ -175,12 +186,8 @@ const getProductDetailById = async (productId) => {
       p.name AS name,
       p.price AS price,
       p.description AS description,
-    IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
-    CASE
-      WHEN p.gender = "M" THEN "남성"
-      WHEN p.gender = "W" THEN "여성"
-      ELSE ""
-    END AS gender,
+      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
+      p.gender AS gender,
       IF(p.is_new = 1, "신상품", "") AS new,
       p.discount_rate AS discount_rate,
       DATE_FORMAT(p.release_date, "%Y-%m-%d") AS release_date,
@@ -281,7 +288,7 @@ const getRecommendation = async (productId) => {
     WHERE p.id != ? AND(p.gender = ? OR o.size IN (?) OR o.color IN (?) OR category IN (?))
     GROUP BY p.id
   `,
-    [productId, filter.gender, filter.size, filter.ocolor, filter.category]
+    [productId, filter.gender, filter.size, filter.color, filter.category]
   );
 };
 
@@ -299,6 +306,7 @@ const getProductById = async (productId) => {
 module.exports = {
   createProduct,
   listProduct,
+  checkIfProductExistsById,
   getProductDetailById,
   getRecommendation,
   getProductById,

@@ -42,7 +42,7 @@ const getUserByEmail = async (email) => {
   return user;
 };
 
-const getUserById = async (id) => {
+const getUserById = async (userId) => {
   const [user] = await dataSource.query(
     `
     SELECT
@@ -55,7 +55,7 @@ const getUserById = async (id) => {
     FROM users
     WHERE id = ?
   `,
-    [id]
+    [userId]
   );
 
   return user;
@@ -76,7 +76,7 @@ const checkIfUserExistsByEmail = async (email) => {
   return !!parseInt(result.value);
 };
 
-const checkIfUserExistById = async (id) => {
+const checkIfUserExistById = async (userId) => {
   const [result] = await dataSource.query(
     `
     SELECT EXISTS(
@@ -85,7 +85,7 @@ const checkIfUserExistById = async (id) => {
       WHERE id = ?
     ) AS value
   `,
-    [id]
+    [userId]
   );
 
   return !!parseInt(result.value);
