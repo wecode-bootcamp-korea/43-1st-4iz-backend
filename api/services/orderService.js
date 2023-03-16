@@ -3,6 +3,7 @@ const {
   validatePhoneNumber,
   validateEmail,
   validateZipcode,
+  validateNumber,
 } = require("../utils/validation");
 
 const createOrder = async (
@@ -14,6 +15,7 @@ const createOrder = async (
   phoneNumber,
   email
 ) => {
+  await validateNumber(userId);
   await validateZipcode(zipcode);
   await validatePhoneNumber(phoneNumber);
   await validateEmail(email);

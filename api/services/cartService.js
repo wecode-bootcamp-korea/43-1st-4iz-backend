@@ -1,7 +1,9 @@
 const { cartDao } = require("../models");
-const { validateQuantity } = require("../utils/validation");
+const { validateQuantity, validateNumber } = require("../utils/validation");
 
 const createCart = async (userId, productId, color, size, quantity) => {
+  await validateNumber(userId);
+  await validateNumber(productId);
   await validateQuantity(quantity);
 
   color = color.replaceAll('"', "");
@@ -15,12 +17,19 @@ const listCart = async (userId) => {
 };
 
 const updateCart = async (userId, cartId, productId, quantity) => {
+  await validateNumber(userId);
+  await validateNumber(productId);
+  await validateNumber(cartId);
   await validateQuantity(quantity);
 
   return await cartDao.updateCart(userId, cartId, productId, quantity);
 };
 
 const deleteCart = async (userId, cartId, productId) => {
+  await validateNumber(userId);
+  await validateNumber(productId);
+  await validateNumber(cartId);
+
   return await cartDao.deleteCart(userId, cartId, productId);
 };
 

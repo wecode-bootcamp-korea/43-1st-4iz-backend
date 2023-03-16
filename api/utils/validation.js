@@ -42,6 +42,17 @@ const validateZipcode = async (zipcode) => {
   }
 };
 
+const validateNumber = async (number) => {
+  const numberRegex = /^(|[1-9]\d*)$/;
+
+  if (!numberRegex.test(number)) {
+    const error = new Error("INVALID_NUMBER");
+    error.statusCode = 4400;
+
+    throw error;
+  }
+};
+
 const validatePrice = async (price) => {
   if (price < 0) {
     const error = new Error("INVALID_PRICE");
@@ -92,6 +103,7 @@ module.exports = {
   validatePassword,
   validatePhoneNumber,
   validateZipcode,
+  validateNumber,
   validatePrice,
   validateGender,
   validateIsNew,
