@@ -8,8 +8,6 @@ const createCart = catchAsync(async (req, res) => {
   const productId = +req.params.productId;
   const { options } = req.body;
 
-  console.log(options);
-
   if (!productId || !options) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
@@ -18,11 +16,9 @@ const createCart = catchAsync(async (req, res) => {
   }
   const insertNum = await cartService.createCart(userId, productId, options);
 
-  return res
-    .status(201)
-    .json({
-      message: `${insertNum} products successfully inserted into your cart!`,
-    });
+  return res.status(201).json({
+    message: `Products successfully inserted into your cart!`,
+  });
 });
 
 const listCart = catchAsync(async (req, res) => {
