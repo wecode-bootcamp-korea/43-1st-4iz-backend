@@ -47,7 +47,7 @@ const validateNumber = async (number) => {
 
   if (!numberRegex.test(number)) {
     const error = new Error("INVALID_NUMBER");
-    error.statusCode = 4400;
+    error.statusCode = 400;
 
     throw error;
   }

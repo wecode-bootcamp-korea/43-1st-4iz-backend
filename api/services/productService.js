@@ -57,10 +57,12 @@ const listProduct = async (limit, offset, search, sort, filters) => {
 };
 
 const getProductDetailById = async (productId) => {
+  await validateNumber(productId);
   return await productDao.getProductDetailById(productId);
 };
 
 const getRecommendation = async (productId) => {
+  await validateNumber(productId);
   return await productDao.getRecommendation(productId);
 };
 

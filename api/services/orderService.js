@@ -15,7 +15,6 @@ const createOrder = async (
   phoneNumber,
   email
 ) => {
-  await validateNumber(userId);
   await validateZipcode(zipcode);
   await validatePhoneNumber(phoneNumber);
   await validateEmail(email);

@@ -2,7 +2,6 @@ const { cartDao } = require("../models");
 const { validateQuantity, validateNumber } = require("../utils/validation");
 
 const createCart = async (userId, productId, color, size, quantity) => {
-  await validateNumber(userId);
   await validateNumber(productId);
   await validateQuantity(quantity);
 
@@ -17,7 +16,6 @@ const listCart = async (userId) => {
 };
 
 const updateCart = async (userId, cartId, productId, quantity) => {
-  await validateNumber(userId);
   await validateNumber(productId);
   await validateNumber(cartId);
   await validateQuantity(quantity);
@@ -26,7 +24,6 @@ const updateCart = async (userId, cartId, productId, quantity) => {
 };
 
 const deleteCart = async (userId, cartId, productId) => {
-  await validateNumber(userId);
   await validateNumber(productId);
   await validateNumber(cartId);
 
