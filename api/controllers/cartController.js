@@ -1,28 +1,24 @@
 const { cartService } = require("../services");
 const { catchAsync } = require("../utils/error");
 
-const QUANTITY_DEFAULT = 1;
+const DEFAULT_QUANTITY = 1;
 
 const createCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const productId = +req.params.productId;
-  const { color, size, quantity = QUANTITY_DEFAULT } = req.body;
+  const { options } = req.body;
 
-  if (!productId || !color || !size) {
+  if (!productId || !options) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 
     throw error;
   }
-  const insertId = await cartService.createCart(
-    userId,
-    productId,
-    color,
-    size,
-    quantity
-  );
+  const insertNum = await cartService.createCart(userId, productId, options);
 
-  return res.status(201).json({ insertId });
+  return res.status(201).json({
+    message: `Products successfully added into your cart!`,
+  });
 });
 
 const listCart = catchAsync(async (req, res) => {
@@ -61,7 +57,7 @@ const deleteCart = catchAsync(async (req, res) => {
   const cartId = +req.params.cartId;
   const productId = +req.params.productId;
 
-  if (!productId || !cartId) {
+  if (!cartId || !productId) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 

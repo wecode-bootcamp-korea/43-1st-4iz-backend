@@ -58,11 +58,31 @@ const listProduct = async (limit, offset, search, sort, filters) => {
 
 const getProductDetailById = async (productId) => {
   await validateNumber(productId);
+
+  const result = await productDao.checkIfProductExistsById(productId);
+
+  if (!result) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
   return await productDao.getProductDetailById(productId);
 };
 
 const getRecommendation = async (productId) => {
   await validateNumber(productId);
+
+  const result = await productDao.checkIfProductExistsById(productId);
+
+  if (!result) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
   return await productDao.getRecommendation(productId);
 };
 

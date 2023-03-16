@@ -3,47 +3,55 @@ const { getProductById } = require("./productDao");
 
 const queryRunner = dataSource.createQueryRunner();
 
-const createCart = async (userId, productId, color, size, quantity) => {
+const createCart = async (userId, productId, options) => {
   await queryRunner.connect();
   await queryRunner.startTransaction();
 
   try {
     const [product] = await getProductById(productId);
 
-    const [option] = await queryRunner.query(
-      `
-      SELECT 
-        id,
-        quantity
-      FROM options
-      WHERE product_id = ? AND color = ? AND size = ?
-    `,
-      [productId, color, size]
-    );
+    for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
+      const optionToArray = options[optionIndex].split("/");
 
-    const cart = await queryRunner.query(
-      `
-      INSERT 
-      INTO carts (
-        user_id,
-        option_id,
-        quantity,
-        price_sum
-      ) VALUES (?, ?, ?, ?)
-    `,
-      [userId, +option.id, quantity, +product.price * quantity]
-    );
+      const color = optionToArray[0];
+      const size = optionToArray[1];
+      const quantity = +optionToArray[2];
 
-    await queryRunner.query(
-      `
-      INSERT 
-      INTO product_carts (
-        product_id,
-        cart_id
-      ) VALUES (?, ?)
+      const [option] = await queryRunner.query(
+        `
+        SELECT 
+          id,
+          quantity
+        FROM options
+        WHERE product_id = ? AND color = ? AND size = ?
+        `,
+        [productId, color, size]
+      );
+
+      const cart = await queryRunner.query(
+        `
+        INSERT 
+        INTO carts (
+          user_id,
+          option_id,
+          quantity,
+          price_sum
+        ) VALUES (?, ?, ?, ?)
     `,
-      [productId, cart.insertId]
-    );
+        [userId, +option.id, quantity, +product.price * quantity]
+      );
+
+      await queryRunner.query(
+        `
+        INSERT 
+        INTO product_carts (
+          product_id,
+          cart_id
+        ) VALUES (?, ?)
+    `,
+        [productId, cart.insertId]
+      );
+    }
 
     await queryRunner.commitTransaction();
   } catch (error) {
@@ -58,8 +66,9 @@ const createCart = async (userId, productId, color, size, quantity) => {
 const listCart = async (userId) => {
   return await dataSource.query(
     `
-    SELECT 
-      p.id AS id,
+    SELECT
+      c.id AS cart_id,
+      p.id AS product_id,
       p.name AS name,
       c.price_sum AS price_sum,
       IF(p.discount_rate > 0, c.price_sum * (1 - p.discount_rate / 100) , "") AS discounted_price_sum,
@@ -102,9 +111,24 @@ const listCart = async (userId) => {
       FROM options AS o
       GROUP BY product_id
     ) oj ON oj.product_id = p.id
+    WHERE c.user_id = ?
   `,
     [userId]
   );
+};
+const checkIfCartExistsById = async (cartId) => {
+  const [result] = await dataSource.query(
+    `
+    SELECT EXISTS(
+      SELECT id 
+      FROM carts 
+      WHERE id = ?
+    ) AS value
+  `,
+    [cartId]
+  );
+
+  return !!parseInt(result.value);
 };
 
 const updateCart = async (userId, cartId, productId, quantity) => {
@@ -195,6 +219,7 @@ const deleteCart = async (userId, cartId, productId) => {
 module.exports = {
   createCart,
   listCart,
+  checkIfCartExistsById,
   updateCart,
   deleteCart,
 };

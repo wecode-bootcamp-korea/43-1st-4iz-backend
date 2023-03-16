@@ -1,14 +1,19 @@
 const { cartDao } = require("../models");
+const { checkIfCartExistsById } = require("../models/cartDao");
+const { checkIfProductExistsById } = require("../models/productDao");
 const { validateQuantity, validateNumber } = require("../utils/validation");
 
-const createCart = async (userId, productId, color, size, quantity) => {
-  await validateNumber(productId);
-  await validateQuantity(quantity);
+const createCart = async (userId, productId, options) => {
+  const result = await checkIfProductExistsById(productId);
 
-  color = color.replaceAll('"', "");
-  size = size.replaceAll('"', "");
+  if (!result) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
 
-  return await cartDao.createCart(userId, productId, color, size, quantity);
+    throw error;
+  }
+
+  return await cartDao.createCart(userId, productId, options);
 };
 
 const listCart = async (userId) => {
@@ -20,12 +25,46 @@ const updateCart = async (userId, cartId, productId, quantity) => {
   await validateNumber(cartId);
   await validateQuantity(quantity);
 
+  const cartResult = await checkIfCartExistsById(cartId);
+  const productResult = await checkIfProductExistsById(productId);
+
+  if (!cartResult) {
+    const error = new Error("NO_SUCH_CART");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
+  if (!productResult) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
   return await cartDao.updateCart(userId, cartId, productId, quantity);
 };
 
 const deleteCart = async (userId, cartId, productId) => {
   await validateNumber(productId);
   await validateNumber(cartId);
+
+  const cartResult = await checkIfCartExistsById(cartId);
+  const productResult = await checkIfProductExistsById(productId);
+
+  if (!cartResult) {
+    const error = new Error("NO_SUCH_CART");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
+  if (!productResult) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
+
+    throw error;
+  }
 
   return await cartDao.deleteCart(userId, cartId, productId);
 };
