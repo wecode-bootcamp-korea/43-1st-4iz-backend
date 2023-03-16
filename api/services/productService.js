@@ -5,6 +5,7 @@ const {
   validateDiscountRate,
   validateQuantity,
   validateGender,
+  validateNumber,
 } = require("../utils/validation");
 
 const createProduct = async (
@@ -43,10 +44,6 @@ const createProduct = async (
   );
 };
 
-const productInfo = async (productId) => {
-    return productDao.getProductDetailById(productId);
-}
-
 const listProduct = async (limit, offset, search, sort, filters) => {
   if (filters.hasOwnProperty("category")) {
     let value = filters["category"];
@@ -61,6 +58,8 @@ const listProduct = async (limit, offset, search, sort, filters) => {
 };
 
 const getProductDetailById = async (productId) => {
+  await validateNumber(productId);
+
   const result = await productDao.checkIfProductExistsById(productId);
 
   if (!result) {
@@ -74,6 +73,8 @@ const getProductDetailById = async (productId) => {
 };
 
 const getRecommendation = async (productId) => {
+  await validateNumber(productId);
+
   const result = await productDao.checkIfProductExistsById(productId);
 
   if (!result) {
@@ -91,6 +92,4 @@ module.exports = {
   listProduct,
   getProductDetailById,
   getRecommendation,
-  productInfo,
 };
-

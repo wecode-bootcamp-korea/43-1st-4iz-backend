@@ -27,24 +27,20 @@ const checkIfCartExistsByUserIdAndOptions = catchAsync(async (req, res) => {
 const createCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const productId = +req.params.productId;
-  const { color, size, quantity = DEFAULT_QUANTITY } = req.body;
+  const { options } = req.body;
 
-  if (!productId || !color || !size) {
+  if (!productId || !options) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
 
     throw error;
   }
 
-  const insertId = await cartService.createCart(
-    userId,
-    productId,
-    color,
-    size,
-    quantity
-  );
+  const insertNum = await cartService.createCart(userId, productId, options);
 
-  return res.status(201).json({ insertId });
+  return res.status(201).json({
+    message: `Products successfully added into your cart!`,
+  });
 });
 
 const listCart = catchAsync(async (req, res) => {
