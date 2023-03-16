@@ -8,9 +8,6 @@ const checkIfCartExistsByUserIdAndOptions = catchAsync(async (req, res) => {
   const productId = +req.params.productId;
   const { options } = req.body;
 
-  console.log(productId);
-  console.log(options);
-
   if (!productId || !options) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
