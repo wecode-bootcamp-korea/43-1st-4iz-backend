@@ -43,6 +43,10 @@ const createProduct = async (
   );
 };
 
+const productInfo = async (productId) => {
+    return productDao.getProductDetailById(productId);
+}
+
 const listProduct = async (limit, offset, search, sort, filters) => {
   if (filters.hasOwnProperty("category")) {
     let value = filters["category"];
@@ -87,4 +91,6 @@ module.exports = {
   listProduct,
   getProductDetailById,
   getRecommendation,
+  productInfo,
 };
+
