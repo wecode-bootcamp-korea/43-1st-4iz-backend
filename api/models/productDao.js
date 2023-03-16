@@ -288,7 +288,7 @@ const getRecommendation = async (productId) => {
     WHERE p.id != ? AND(p.gender = ? OR o.size IN (?) OR o.color IN (?) OR category IN (?))
     GROUP BY p.id
   `,
-    [productId, filter.gender, filter.size, filter.ocolor, filter.category]
+    [productId, filter.gender, filter.size, filter.color, filter.category]
   );
 };
 
