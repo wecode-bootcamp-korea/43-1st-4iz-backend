@@ -4,6 +4,27 @@ const { checkIfCartExistsById } = require("../models/cartDao");
 const { checkIfProductExistsById } = require("../models/productDao");
 const { validateQuantity } = require("../utils/validation");
 
+const checkIfCartExistsByUserIdAndOptions = async (
+  userId,
+  productId,
+  options
+) => {
+  const result = await checkIfProductExistsById(productId);
+
+  if (!result) {
+    const error = new Error("NO_SUCH_PRODUCT");
+    error.statusCode = 404;
+
+    throw error;
+  }
+
+  return await cartDao.checkIfCartExistsByUserIdAndOptions(
+    userId,
+    productId,
+    options
+  );
+};
+
 const createCart = async (userId, productId, color, size, quantity) => {
   const result = await checkIfProductExistsById(productId);
 
@@ -71,6 +92,7 @@ const deleteCart = async (userId, cartId, productId) => {
 };
 
 module.exports = {
+  checkIfCartExistsByUserIdAndOptions,
   createCart,
   listCart,
   updateCart,

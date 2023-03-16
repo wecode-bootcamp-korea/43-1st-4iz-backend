@@ -3,6 +3,30 @@ const { catchAsync } = require("../utils/error");
 
 const DEFAULT_QUANTITY = 1;
 
+const checkIfCartExistsByUserIdAndOptions = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const productId = +req.params.productId;
+  const { options } = req.body;
+
+  console.log(productId);
+  console.log(options);
+
+  if (!productId || !options) {
+    const error = new Error("KEY_ERROR");
+    error.statusCode = 400;
+
+    throw error;
+  }
+
+  const result = await cartService.checkIfCartExistsByUserIdAndOptions(
+    userId,
+    productId,
+    options
+  );
+
+  return res.status(200).json({ message: result });
+});
+
 const createCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const productId = +req.params.productId;
@@ -14,6 +38,7 @@ const createCart = catchAsync(async (req, res) => {
 
     throw error;
   }
+
   const insertId = await cartService.createCart(
     userId,
     productId,
@@ -74,6 +99,7 @@ const deleteCart = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  checkIfCartExistsByUserIdAndOptions,
   createCart,
   listCart,
   updateCart,
