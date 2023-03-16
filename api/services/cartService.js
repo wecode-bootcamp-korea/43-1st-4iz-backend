@@ -1,10 +1,9 @@
 const { cartDao } = require("../models");
-const { checkIfUserExistById } = require("../models/userDao");
 const { checkIfCartExistsById } = require("../models/cartDao");
 const { checkIfProductExistsById } = require("../models/productDao");
 const { validateQuantity } = require("../utils/validation");
 
-const createCart = async (userId, productId, color, size, quantity) => {
+const createCart = async (userId, productId, options) => {
   const result = await checkIfProductExistsById(productId);
 
   if (!result) {
@@ -14,12 +13,7 @@ const createCart = async (userId, productId, color, size, quantity) => {
     throw error;
   }
 
-  await validateQuantity(quantity);
-
-  color = color.replaceAll('"', "");
-  size = size.replaceAll('"', "");
-
-  return await cartDao.createCart(userId, productId, color, size, quantity);
+  return await cartDao.createCart(userId, productId, options);
 };
 
 const listCart = async (userId) => {
