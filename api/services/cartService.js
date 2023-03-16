@@ -1,7 +1,7 @@
 const { cartDao } = require("../models");
 const { checkIfCartExistsById } = require("../models/cartDao");
 const { checkIfProductExistsById } = require("../models/productDao");
-const { validateQuantity } = require("../utils/validation");
+const { validateQuantity, validateNumber } = require("../utils/validation");
 
 const createCart = async (userId, productId, options) => {
   const result = await checkIfProductExistsById(productId);
@@ -21,6 +21,10 @@ const listCart = async (userId) => {
 };
 
 const updateCart = async (userId, cartId, productId, quantity) => {
+  await validateNumber(productId);
+  await validateNumber(cartId);
+  await validateQuantity(quantity);
+
   const cartResult = await checkIfCartExistsById(cartId);
   const productResult = await checkIfProductExistsById(productId);
 
@@ -38,12 +42,13 @@ const updateCart = async (userId, cartId, productId, quantity) => {
     throw error;
   }
 
-  await validateQuantity(quantity);
-
   return await cartDao.updateCart(userId, cartId, productId, quantity);
 };
 
 const deleteCart = async (userId, cartId, productId) => {
+  await validateNumber(productId);
+  await validateNumber(cartId);
+
   const cartResult = await checkIfCartExistsById(cartId);
   const productResult = await checkIfProductExistsById(productId);
 
