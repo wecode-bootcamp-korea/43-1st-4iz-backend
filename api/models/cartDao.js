@@ -110,6 +110,7 @@ const listCart = async (userId) => {
       FROM options AS o
       GROUP BY product_id
     ) oj ON oj.product_id = p.id
+    WHERE c.user_id = ?
   `,
     [userId]
   );
