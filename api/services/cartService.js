@@ -8,6 +8,8 @@ const checkIfCartExistsByUserIdAndOptions = async (
   productId,
   options
 ) => {
+  await validateNumber(productId);
+
   const result = await checkIfProductExistsById(productId);
 
   if (!result) {
@@ -25,6 +27,8 @@ const checkIfCartExistsByUserIdAndOptions = async (
 };
 
 const createCart = async (userId, productId, options) => {
+  await validateNumber(productId);
+
   const result = await checkIfProductExistsById(productId);
 
   if (!result) {

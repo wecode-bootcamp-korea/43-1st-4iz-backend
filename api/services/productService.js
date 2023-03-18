@@ -72,7 +72,7 @@ const getProductDetailById = async (productId) => {
   return await productDao.getProductDetailById(productId);
 };
 
-const getRecommendation = async (productId) => {
+const getRecommendationById = async (productId) => {
   await validateNumber(productId);
 
   const result = await productDao.checkIfProductExistsById(productId);
@@ -84,12 +84,12 @@ const getRecommendation = async (productId) => {
     throw error;
   }
 
-  return await productDao.getRecommendation(productId);
+  return await productDao.getRecommendationById(productId);
 };
 
 module.exports = {
   createProduct,
   listProduct,
   getProductDetailById,
-  getRecommendation,
+  getRecommendationById,
 };

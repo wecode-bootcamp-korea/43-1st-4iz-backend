@@ -3,7 +3,14 @@ const { catchAsync } = require("../utils/error");
 
 const createOrder = catchAsync(async (req, res) => {
   const userId = req.user.id;
-  const { name, street, address, zipcode, phoneNumber, email } = req.body;
+  const {
+    name,
+    street,
+    address,
+    zipcode = "11111",
+    phoneNumber,
+    email,
+  } = req.body;
 
   if (!name || !street || !address || !zipcode || !phoneNumber || !email) {
     const error = new Error("KEY_ERROR");

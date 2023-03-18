@@ -107,14 +107,16 @@ const createProduct = async (
     );
 
     await queryRunner.commitTransaction();
-  } catch (error) {
+  } catch (err) {
     console.error(
       "Error occurred during transaction. Rollback triggered.",
-      error
+      err
     );
     await queryRunner.rollbackTransaction();
-  } finally {
-    await queryRunner.release();
+
+    const error = new Error("INVALID_INPUT");
+    error.statusCode = 500;
+    throw error;
   }
 };
 
@@ -133,7 +135,7 @@ const listProduct = async (limit, offset, search, sort, filters) => {
       p.id AS id,
       p.name AS name,
       p.price AS price,
-      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , "") AS discounted_price,
+      IF(p.discount_rate > 0, p.price * (1 - p.discount_rate / 100) , p.price) AS discounted_price,
       p.gender,
       IF(p.is_new = 1, "신상품", "") AS new,
       COUNT(DISTINCT(o.color)) AS color_count,
@@ -227,7 +229,7 @@ const getProductDetailById = async (productId) => {
   );
 };
 
-const getRecommendation = async (productId) => {
+const getRecommendationById = async (productId) => {
   const [product] = await getProductDetailById(productId);
 
   const filter = {};
@@ -285,7 +287,7 @@ const getRecommendation = async (productId) => {
       JOIN categories AS c ON c.id = pc.category_id
       GROUP BY product_id
     ) pcj ON pcj.product_id = p.id
-    WHERE p.id != ? AND(p.gender = ? OR o.size IN (?) OR o.color IN (?) OR category IN (?))
+    WHERE p.id != ? AND (p.gender = ? OR o.size IN (?) OR o.color IN (?) OR category IN (?))
     GROUP BY p.id
   `,
     [productId, filter.gender, filter.size, filter.color, filter.category]
@@ -308,6 +310,6 @@ module.exports = {
   listProduct,
   checkIfProductExistsById,
   getProductDetailById,
-  getRecommendation,
+  getRecommendationById,
   getProductById,
 };

@@ -234,14 +234,18 @@ const createOrder = async (
         throw new Error("INVALID_INPUT");
       }
     }
-
     await queryRunner.commitTransaction();
-  } catch (error) {
+    return orderId;
+  } catch (err) {
     console.error(
       "Error occurred during transaction. Rollback triggered.",
-      error
+      err
     );
     await queryRunner.rollbackTransaction();
+
+    const error = new Error("INVALID_INPUT");
+    error.statusCode = 500;
+    throw error;
   }
 };
 

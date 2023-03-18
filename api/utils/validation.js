@@ -32,7 +32,7 @@ const validatePhoneNumber = async (phoneNumber) => {
 };
 
 const validateZipcode = async (zipcode) => {
-  const zipcodeRegex = /^[0-9]{5}/;
+  const zipcodeRegex = /^[0-9]{5}$/;
 
   if (!zipcodeRegex.test(zipcode)) {
     const error = new Error("INVALID_ZIPCODE");

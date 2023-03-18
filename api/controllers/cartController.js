@@ -36,10 +36,10 @@ const createCart = catchAsync(async (req, res) => {
     throw error;
   }
 
-  const insertNum = await cartService.createCart(userId, productId, options);
+  const insertId = await cartService.createCart(userId, productId, options);
 
   return res.status(201).json({
-    message: `Products successfully added into your cart!`,
+    insertId,
   });
 });
 
@@ -78,6 +78,9 @@ const deleteCart = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const cartId = +req.params.cartId;
   const productId = +req.params.productId;
+
+  console.log(`cartId: ${cartId}`);
+  console.log(`productId: ${productId}`);
 
   if (!cartId || !productId) {
     const error = new Error("KEY_ERROR");

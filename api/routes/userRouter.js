@@ -4,7 +4,7 @@ const { userController } = require("../controllers");
 
 const router = express.Router();
 
-router.post("/duplicate", userController.checkDuplicateUser);
+router.post("/duplicate", userController.checkIfUserExistsByEmail);
 router.post("/signup", userController.signUp);
 router.post("/signin", userController.signIn);
 

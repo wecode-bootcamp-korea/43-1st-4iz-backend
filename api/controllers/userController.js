@@ -1,7 +1,7 @@
 const { userService } = require("../services");
 const { catchAsync } = require("../utils/error");
 
-const checkDuplicateUser = catchAsync(async (req, res) => {
+const checkIfUserExistsByEmail = catchAsync(async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
@@ -11,10 +11,10 @@ const checkDuplicateUser = catchAsync(async (req, res) => {
     throw error;
   }
 
-  const result = await userService.checkDuplicateUser(email);
+  const result = await userService.checkIfUserExistsByEmail(email);
   const message = result ? "EXISTING_USER" : "NEW_USER";
 
-  return res.status(200).json({ message: message });
+  return res.status(200).json({ message });
 });
 
 const signUp = catchAsync(async (req, res) => {
@@ -54,7 +54,7 @@ const signIn = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  checkDuplicateUser,
+  checkIfUserExistsByEmail,
   signUp,
   signIn,
 };

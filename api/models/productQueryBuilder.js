@@ -41,12 +41,12 @@ class ProductQueryBuilder {
     }
 
     if (clause.length !== 0) {
-      clause = `${clause.join(" OR ")}`;
+      clause = `${clause.join(` OR `)}`;
     }
 
-    clause = `WHERE ` + clause;
+    clause = `WHERE (` + clause;
 
-    return keyword === "" ? "" : clause;
+    return keyword === `` ? `` : `${clause})`;
   }
 
   categoryFilterBuilder(category) {
@@ -105,12 +105,12 @@ class ProductQueryBuilder {
     });
 
     if (filterClause.length !== 0) {
-      filterClause = `${filterClause.join(" OR ")}`;
+      filterClause = `${filterClause.join(" AND ")}`;
 
       if (searchClause.length !== 0) {
-        filterClause = "OR " + filterClause;
+        filterClause = ` AND (${filterClause})`;
       } else {
-        filterClause = "WHERE " + filterClause;
+        filterClause = `WHERE ${filterClause}`;
       }
     }
 

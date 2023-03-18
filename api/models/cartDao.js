@@ -9,6 +9,7 @@ const createCart = async (userId, productId, options) => {
 
   try {
     const [product] = await getProductById(productId);
+    const cartIds = [];
 
     for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
       const optionToArray = options[optionIndex].split("/");
@@ -51,9 +52,12 @@ const createCart = async (userId, productId, options) => {
     `,
         [productId, cart.insertId]
       );
+
+      cartIds.push(cart.insertId);
     }
 
     await queryRunner.commitTransaction();
+    return cartIds;
   } catch (error) {
     console.error(
       "Error occurred during transaction. Rollback triggered.",
@@ -70,8 +74,9 @@ const listCart = async (userId) => {
       c.id AS cart_id,
       p.id AS product_id,
       p.name AS name,
+      p.price AS price,
       c.price_sum AS price_sum,
-      IF(p.discount_rate > 0, c.price_sum * (1 - p.discount_rate / 100) , "") AS discounted_price_sum,
+      IF(p.discount_rate > 0, c.price_sum * (1 - p.discount_rate / 100) , c.price_sum) AS discounted_price_sum,
       c.quantity AS quantity,
       ij.image AS images,
       pcj.category AS categories,
@@ -213,9 +218,9 @@ const updateCart = async (userId, cartId, productId, quantity) => {
 
 const deleteCart = async (userId, cartId, productId) => {
   await queryRunner.connect();
+  await queryRunner.startTransaction();
 
   try {
-    await queryRunner.startTransaction();
     const deletedRowsFromProductCarts = (
       await queryRunner.query(
         `
@@ -249,12 +254,16 @@ const deleteCart = async (userId, cartId, productId) => {
     await queryRunner.commitTransaction();
 
     return deletedRowFromCarts;
-  } catch (error) {
+  } catch (err) {
     console.error(
       "Error occurred during transaction. Rollback triggered.",
-      error
+      err
     );
     await queryRunner.rollbackTransaction();
+
+    const error = new Error("INVALID_INPUT");
+    error.statusCode = 500;
+    throw error;
   }
 };
 

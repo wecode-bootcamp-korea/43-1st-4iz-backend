@@ -60,22 +60,8 @@ const createProduct = catchAsync(async (req, res) => {
     category
   );
 
-  return res.status(201).json({ message: "successfully created" });
+  return res.status(201).json({ message: "Product successfully created" });
 });
-
-const productInfo = catchAsync (async (req, res) => {
-    const { productId } = req.params;
-
-    if ( !productId ) {
-        const error = new Error('NOT_FOUND_PRODUCT_ID')
-            error.statusCode = 404
-
-            throw error
-    }
-    const productResult = await productService.productInfo(productId)
-
-    return res.status(200).json({productResult});
-})
 
 const listProduct = catchAsync(async (req, res) => {
   const {
@@ -112,7 +98,7 @@ const getProductDetailById = catchAsync(async (req, res) => {
   return res.status(200).json({ data });
 });
 
-const getRecommendation = catchAsync(async (req, res) => {
+const getRecommendationById = catchAsync(async (req, res) => {
   const productId = +req.params.productId;
 
   if (!productId) {
@@ -122,7 +108,7 @@ const getRecommendation = catchAsync(async (req, res) => {
     throw error;
   }
 
-  const data = await productService.getRecommendation(productId);
+  const data = await productService.getRecommendationById(productId);
 
   return res.status(200).json({ data });
 });
@@ -131,7 +117,5 @@ module.exports = {
   createProduct,
   listProduct,
   getProductDetailById,
-  getRecommendation,
-  productInfo,
+  getRecommendationById,
 };
-
