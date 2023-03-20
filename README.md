@@ -11,8 +11,8 @@
 - 인원: 4명
   - 프론트엔드: 이솜이, 장지아 (Product Manager)
   - 백엔드: 류승준, 이창섭 (Project Manager)
-  - 프론트엔드 Github
-  - 백엔드 Github
+  - <a href="https://github.com/wecode-bootcamp-korea/43-1st-4iz-frontend" target="_blank">프론트엔드 Github</a>
+  - <a href="https://github.com/wecode-bootcamp-korea/43-1st-4iz-backend" target="_blank">백엔드 Github</a>
 
 ## 기술
 
