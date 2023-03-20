@@ -79,9 +79,6 @@ const deleteCart = catchAsync(async (req, res) => {
   const cartId = +req.params.cartId;
   const productId = +req.params.productId;
 
-  console.log(`cartId: ${cartId}`);
-  console.log(`productId: ${productId}`);
-
   if (!cartId || !productId) {
     const error = new Error("KEY_ERROR");
     error.statusCode = 400;
